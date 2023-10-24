@@ -6,7 +6,7 @@ Developers:
 Leo Li,
 Kaung Zan,
 Vivien Ho,
-Alex
+Alex Ho
 
 
 When you navigate to our website, it prompts the user if it can use their current location. Once user accepts, our website does the following on load:
