@@ -1,8 +1,5 @@
-CREATE DATABASE bamazon;
-\c bamazon
-CREATE TABLE books (
+CREATE DATABASE virtuAlgo;
+\c virtuAlgo
+CREATE TABLE virtu (
 	id SERIAL PRIMARY KEY,
-	title VARCHAR(15),
-	genre VARCHAR(25),
-	quality BOOLEAN
 );
