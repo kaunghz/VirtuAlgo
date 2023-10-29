@@ -7,7 +7,7 @@
 </head>
 <body>
 	<h1>Welcome to VirtuAlgo</h1>
-	<form action="">
+	<form id="login-form" method="POST" action="/signin">
 		<div class="loginHeading">
 			<h2>Sign In</h2>
 			<p>Enter your username and password</p>
@@ -15,13 +15,10 @@
 
 		<div class="loginBody">
 			<label for="username">Username:</label>
-			<input type="text" placeholder="Enter Username" required>
-
+			<input type="text" id="username" placeholder="Enter Username" required>
 			<br><br>
-
 			<label for="password">Password:</label>
-			<input type="password" placeholder="Enter Password" required>
-
+			<input type="password" id="password" placeholder="Enter Password" required>
 			<div class="rememberme">
 				<label>
 					<input type="checkbox" checked="checked" name="remember"> Remember me
@@ -30,14 +27,12 @@
 					<a href="forgotPassword.html">Need help?</a>
 				</label>
 			</div>
-
 			<br>
-
 			<button type="login">Login</button>
-			
-			<p class="signup">New to VirtuAlgo? <a href="signup.html">Sign up now.</a></p>
+			<div id="result">&nbsp;</div>
 		</div>
 	</form>
+	<p class="signup">New to VirtuAlgo? <a href="signup.html">Sign up now.</a></p>
 	<script src="login.js"></script>
 </body>
 </html>

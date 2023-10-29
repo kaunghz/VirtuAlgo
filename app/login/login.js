@@ -2,7 +2,9 @@ let usernameInput = document.getElementById("username");
 let passwordInput = document.getElementById("password");
 let result = document.getElementById("result");
 
-document.getElementById("login").addEventListener("click", () => {
+document.getElementById("login-form").addEventListener("submit", function(e) {
+	e.preventDefault();
+	
 	fetch("/signin", {
 		method: "POST",
 		headers: {
