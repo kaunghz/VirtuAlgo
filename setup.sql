@@ -1,5 +1,6 @@
-CREATE DATABASE virtuAlgo;
-\c virtuAlgo
+DROP DATABASE IF EXISTS virtualgo;
+CREATE DATABASE virtualgo;
+\c virtualgo
 CREATE TABLE virtu (
-	id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY
 );
