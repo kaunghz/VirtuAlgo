@@ -14,6 +14,8 @@ pool.connect().then(function () {
 
 app.use(express.json());
 
+app.use(express.static("public"));
+
 /*
 Add code
 */
