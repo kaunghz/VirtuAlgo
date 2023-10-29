@@ -2,8 +2,8 @@ let usernameInput = document.getElementById("username");
 let passwordInput = document.getElementById("password");
 let result = document.getElementById("result");
 
-document.getElementById("login").addEventListener("click", () => {
-	fetch("/signin", {
+document.getElementById("create").addEventListener("click", () => {
+	fetch("/signup", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
@@ -14,10 +14,10 @@ document.getElementById("login").addEventListener("click", () => {
 		})
 	}).then((response) => {
 		if (response.status === 200) {
-			result.textContent = "Login successful";
+			result.textContent = "Account was created";
 			result.classList.remove("error");
 		} else {
-			result.textContent = "Login failed";
+			result.textContent = "Account creation failed";
 			result.classList.add("error");
 		}
 	});
