@@ -1,5 +1,6 @@
 let express = require("express");
 let { Pool } = require("pg");
+let bcrypt = require("bcrypt");
 let env = require("../env.json");
 let hostname = "localhost";
 let port = 3000;
@@ -18,17 +19,23 @@ pool.connect().then(() => {
 let saltRounds = 10;
 
 app.post("/signup", (req, res) => {
+  let email = req.body.email;
   let username = req.body.username;
   let plaintextPassword = req.body.plaintextPassword;
+  
+  let validRegexPasswordCheck = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,25})/;
 
-  if(!username || 
+  if(!email ||
+    !username || 
     !plaintextPassword || 
+    typeof email !== "string" ||
     typeof username !== "string" || 
     typeof plaintextPassword !== "string" || 
     username.length < 1 || 
     username.length > 20 || 
     plaintextPassword.length < 8 || 
-    plaintextPassword.length > 25) 
+    plaintextPassword.length > 25 ||
+    !validRegexPasswordCheck.test(plaintextPassword)) 
     {
       return res.status(401).send();
     }
@@ -45,8 +52,8 @@ app.post("/signup", (req, res) => {
           .then((hashedPassword) => {
             pool
               .query(
-                "INSERT INTO users (username, hashed_password) VALUES ($1, $2)",
-                [username, hashedPassword],
+                "INSERT INTO users (username, email, hashed_password) VALUES ($1, $2, $3)",
+                [username, email, hashedPassword],
               )
               .then(() => {
                 // account created
