@@ -4,7 +4,7 @@ let result = document.getElementById("result");
 
 document.getElementById("login-form").addEventListener("submit", function(e) {
 	e.preventDefault();
-	
+
 	fetch("/signin", {
 		method: "POST",
 		headers: {
@@ -16,8 +16,9 @@ document.getElementById("login-form").addEventListener("submit", function(e) {
 		})
 	}).then((response) => {
 		if (response.status === 200) {
-			result.textContent = "Login successful";
+			result.textContent = "Login successful. Redirecting you to the Home Page of VirtuAlgo...";
 			result.classList.remove("error");
+			//window.location.href = "../public/index.html";
 		} else {
 			result.textContent = "Login failed";
 			result.classList.add("error");
