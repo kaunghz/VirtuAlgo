@@ -8,11 +8,10 @@ let pool = new Pool(env);
 pool.connect().then(() => {
     console.log("Connected to database");
 });
-app.get("/data", (req, res) => {
-  pool.query("SELECT * FROM stuff").then(result => {
-    res.json({data: result.rows});
-  });
-});
+
+app.use(express.static("public"));
+app.use(express.static("login"));
+
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
