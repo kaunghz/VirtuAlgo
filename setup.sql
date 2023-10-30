@@ -3,7 +3,7 @@ CREATE DATABASE virtualgo;
 CREATE TABLE Users (
 	userId SERIAL PRIMARY KEY,
 	username VARCHAR(25),
-	saltedPass VARCHAR(50)
+	saltedPass VARCHAR(60)
 );
 
 CREATE TABLE Portfolio (
