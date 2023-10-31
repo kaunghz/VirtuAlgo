@@ -7,7 +7,6 @@ let hostname = "localhost";
 let port = 3000;
 
 let app = express();
-let Pool = pg.Pool;
 let pool = new Pool(env);
 pool.connect().then(function () {
   console.log(`Connected to database ${env.database}`);
@@ -54,7 +53,7 @@ app.post("/signup", (req, res) => {
       .hash(plaintextPassword, saltRounds)
       .then((saltedPassword) => {
         pool
-        .query("INSERT INTO users (username, saltedPass, email) VALUES ($1, $2)", [username, saltedPassword, email])
+        .query("INSERT INTO users (username, saltedPass, email) VALUES ($1, $2, $3)", [username, saltedPassword, email])
         .then(() => {
           console.log(username, "account created");
           res.status(200).send();
@@ -82,31 +81,31 @@ app.post("/signin", (req, res) => {
   let username = req.body.username;
   let plaintextPassword = req.body.plaintextPassword;
   pool
-    .query("SELECT hashed_password FROM users WHERE username = $1", [username])
+    .query("SELECT saltedPass FROM users WHERE username = $1", [username])
     .then((result) => {
       if (result.rows.length === 0) {
-        // username doesn't exist
+        console.log(username, "does not exists");
         return res.status(401).send();
       }
-      let hashedPassword = result.rows[0].hashed_password;
+      let saltedPassword = result.rows[0].saltedPass;
       bcrypt
-        .compare(plaintextPassword, hashedPassword)
+        .compare(plaintextPassword, saltedPassword)
         .then((passwordMatched) => {
           if (passwordMatched) {
+            console.log(username, "logged in");
             res.status(200).send();
           } else {
+            console.log(username, "could not logged in");
             res.status(401).send();
           }
         })
         .catch((error) => {
-          // bcrypt crashed
-          console.log(error);
+          console.log("BCrypt Salt Password:", error);
           res.status(500).send();
         });
     })
     .catch((error) => {
-      // select crashed
-      console.log(error);
+      console.log("SQL Select From Users:", error);
       res.status(500).send();
     });
 });
