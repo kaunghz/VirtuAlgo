@@ -1,7 +1,7 @@
 {
-	"user": "postgres",
+	"user": "USERNAME",
 	"host": "localhost",
 	"database": "virtualgo",
-	"password": "password",
+	"password": "PASSWORD",
 	"port": 5432
 }
