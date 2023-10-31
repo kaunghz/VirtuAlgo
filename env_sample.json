@@ -1,0 +1,7 @@
+{
+	"user": "USERNAME",
+	"host": "localhost",
+	"database": "virtualgo",
+	"password": "PASSWORD",
+	"port": 5432
+}
