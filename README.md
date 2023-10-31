@@ -22,10 +22,10 @@ Run the following command afterward:
 npm run setup
 ```
 
-Finally, cd into app/ and run the command:
+Finally run the command:
 
 ```
-node server.js
+npm run start
 ```
 
 # Developers:

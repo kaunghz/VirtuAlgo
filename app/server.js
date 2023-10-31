@@ -87,7 +87,7 @@ app.post("/signin", (req, res) => {
         console.log(username, "does not exists");
         return res.status(401).send();
       }
-      let saltedPassword = result.rows[0].saltedPass;
+      let saltedPassword = result.rows[0].saltedpass;
       bcrypt
         .compare(plaintextPassword, saltedPassword)
         .then((passwordMatched) => {
