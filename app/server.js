@@ -10,7 +10,6 @@ app.use(express.json());
 app.use(express.static("public"));
 app.use(express.static("login"));
 
-
 let pool = new Pool(env);
 pool.connect().then(() => {
     console.log("Connected to database");
