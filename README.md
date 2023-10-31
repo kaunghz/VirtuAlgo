@@ -14,7 +14,9 @@ Run the following command:
 npm i
 ```
 
-Then to set up the Postgres Database:
+Then to set up the Postgres Database, first open env_sample.json and replace "USERNAME" with your
+postgres username. Also, make sure to replace "PASSWORD" with your corresponding postgres password.
+Run the following command afterwards:
 
 ```
 npm run setup
