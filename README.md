@@ -28,10 +28,10 @@ Finally, cd into app/ and run the command:
 node server.js
 ```
 
-Developers:
-Leo Li,
-Kaung Zan,
-Vivien Ho,
-Alex Ho
+# Developers:
+- Leo Li,
+- Kaung Zan,
+- Vivien Ho,
+- Alex Ho
 
 > Developers Note - Please create your own branch to add new features Don't push directly to master branch.
