@@ -2,8 +2,8 @@ DROP DATABASE IF EXISTS virtualgo;
 CREATE DATABASE virtualgo;
 \c virtualgo
 
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
+CREATE TABLE Users (
+  userId SERIAL PRIMARY KEY,
   username VARCHAR(20),
   saltedPass CHAR(60),
   email VARCHAR(40)
