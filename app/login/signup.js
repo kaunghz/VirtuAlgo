@@ -54,8 +54,11 @@ document.getElementById("signup-form").addEventListener("submit", function(e) {
 			})
 		}).then((response) => {
 			if (response.status === 200) {
-				result.textContent = "Account was created";
+				result.textContent = "Account Creation Successful. Redirecting you to the Home Page of VirtuAlgo...";
 				result.classList.remove("error");
+				setTimeout(function() {
+					window.location.href = "../";
+				}, 2000);
 			} else {
 				result.textContent = "Account creation failed";
 				result.classList.add("error");
