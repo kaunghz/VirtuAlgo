@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>algoTrade</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<nav>
+        <div>
+            <a href="/algotrade.html"><button id="algotrade">algoTrade</button></a>
+            <a href="#"><button id="portfolio">portfolio</button></a>
+            <a href="#"><button id="history">history</button></a>
+        </div>
+	</nav>
+</head>
+<body>
+	<h1>algoTrade</h1>
+	<h2>Create a new algorithm for your trading</h2>
+	<form id="new-algorithm-form" method="POST" action="/new-algorithm">
+		<label for="new-name">New Algorithm Name:</label>
+		<input type="text" id="new-name" placeholder="Name">
+		<br>
+		<p>Rules:</p>
+		<div id="new-buy">
+			<label for="buy-below-price">Buy <input type="text" id="buy-below-stocks" placeholder="number of stocks"> when stock price falls below:</label>
+			<input type="text" id="buy-below-price" placeholder="price">
+			<br>
+		</div>
+		<br>
+		<div id="new-sell-below">
+			<label for="sell-below-price">Sell <input type="text" id="sell-below-stocks" placeholder="number of stocks"> when stock price falls below:</label>
+			<input type="text" id="sell-below-price" placeholder="price">
+			<br>
+		</div>
+		<br>
+		<div id="new-sell-above">
+			<label for="sell-above-price">Sell <input type="text" id="sell-above-stocks" placeholder="number of stocks"> when stock price rises above:</label>
+			<input type="text" id="sell-above-price" placeholder="price">
+			<br>
+		</div>
+		<br>
+		<button type="new-algorithm">Create New Algorithm</button>
+	</form>
+	<h2>Your Algorithms</h2>
+	<script src="algotrade.js"></script>
+</body>
+</html>

@@ -15,3 +15,14 @@ CREATE TABLE Portfolio (
 	balance DECIMAL(10, 2)
 );
 
+CREATE TABLE Algorithm (
+  algorithmId SERIAL PRIMARY KEY,
+  userId INTEGER REFERENCES Users(userId),
+  name VARCHAR(20),
+  buyBelowPrice DECIMAL(10, 2),
+  buyBelowStocks DECIMAL(10, 2),
+  sellBelowPrice DECIMAL(10, 2),
+  sellBelowStocks DECIMAL(10, 2),
+  sellAbovePrice DECIMAL(10, 2),
+  sellAboveStocks DECIMAL(10, 2)
+);

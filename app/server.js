@@ -16,6 +16,7 @@ pool.connect().then(function () {
 app.use(express.json());
 app.use(express.static("public"));
 app.use(express.static("login"));
+app.use(express.static("algotrade"));
 
 let saltRounds = 10;
 
@@ -108,6 +109,26 @@ app.post("/signin", (req, res) => {
       console.log("SQL Select From Users:", error);
       res.status(500).send();
     });
+});
+
+app.post("/new-algorithm", (req, res) => {
+  let body = req.body;
+  console.log(body);
+
+  let name = body['new-algorithm-name'];
+  let buyBelowPrice = parseFloat(body['buy-below-price']);
+  let buyBelowStocks = parseFloat(body['buy-below-stocks']);
+  let sellBelowPrice = parseFloat(body['sell-below-price']);
+  let sellBelowStocks = parseFloat(body['sell-below-stocks']);
+  let sellAbovePrice = parseFloat(body['sell-above-price']);
+  let sellAboveStocks = parseFloat(body['sell-above-stocks']);
+
+  pool.query(
+    'INSERT INTO ALGORITHM (userId, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+    [1, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks]
+  );
+
+  res.status(200).send();
 });
 
 app.listen(port, hostname, () => {
