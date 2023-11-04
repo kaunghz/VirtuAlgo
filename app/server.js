@@ -1,4 +1,5 @@
 let express = require("express");
+let path = require("path");
 let { Pool } = require("pg");
 let bcrypt = require("bcrypt");
 let env = require("../env.json");
@@ -13,11 +14,17 @@ pool.connect().then(function () {
 });
 
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, './login/login.html'));
+});
+
 app.use(express.json());
-app.use(express.static("public"));
 app.use(express.static("login"));
+app.use(express.static("public"));
+
 
 let saltRounds = 10;
+
 
 app.post("/signup", (req, res) => {
   let email = req.body.email;
