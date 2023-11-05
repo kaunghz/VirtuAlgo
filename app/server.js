@@ -124,11 +124,24 @@ app.post("/new-algorithm", (req, res) => {
   let sellAboveStocks = parseFloat(body['sell-above-stocks']);
 
   pool.query(
-    'INSERT INTO ALGORITHM (userId, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+    'INSERT INTO ALGORITHMS (userId, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
     [1, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks]
   );
 
   res.status(200).send();
+});
+
+app.get("/get-algorithms", (req, res) => {
+  pool.query(
+    "SELECT * FROM ALGORITHMS"
+  ).then((result) => {
+    let rows = result.rows;
+    console.log(rows);
+    res.status(200).send(rows);
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).send();
+  });
 });
 
 app.listen(port, hostname, () => {

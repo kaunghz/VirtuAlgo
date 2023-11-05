@@ -15,7 +15,7 @@ CREATE TABLE Portfolio (
 	balance DECIMAL(10, 2)
 );
 
-CREATE TABLE Algorithm (
+CREATE TABLE Algorithms (
   algorithmId SERIAL PRIMARY KEY,
   userId INTEGER REFERENCES Users(userId),
   name VARCHAR(20),

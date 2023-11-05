@@ -8,6 +8,39 @@ let sellBelowStocks = document.getElementById("sell-below-stocks");
 let sellAbovePrice = document.getElementById("sell-above-price");
 let sellAboveStocks = document.getElementById("sell-above-stocks");
 
+let algorithmsList = document.getElementById("algorithms");
+
+fetch('/get-algorithms').then((response) => {
+    return response.json();
+}).then((result) => {
+    console.log(result);
+    for (const algorithm of result) {
+        let divider = document.createElement('hr');
+        let container = document.createElement('div');
+        let algorithmName = document.createElement('p');
+        let buyBelowP = document.createElement('p');
+        let buyBelowS = document.createElement('p');
+        let sellBelowP = document.createElement('p');
+        let sellBelowS = document.createElement('p');
+        let sellAboveP = document.createElement('p');
+        let sellAboveS = document.createElement('p');
+
+        algorithmName.textContent = `Algorithm: ${algorithm.name}`;
+        buyBelowP.textContent = `Buy below $${algorithm.buybelowprice}`;
+        buyBelowS.textContent = `Buy ${algorithm.buybelowstocks} shares`;
+        sellBelowP.textContent = `Sell below $${algorithm.sellbelowprice}`;
+        sellBelowS.textContent = `Sell ${algorithm.sellbelowstocks} shares`;
+        sellAboveP.textContent = `Sell above $${algorithm.sellaboveprice}`;
+        sellAboveS.textContent = `Sell ${algorithm.sellabovestocks} shares`;
+
+        container.append(divider, algorithmName, buyBelowP, buyBelowS, sellBelowP, sellBelowS, sellAboveP, sellAboveS, divider);
+        
+        algorithmsList.append(container);
+    }
+}).catch((error) => {
+    console.log(error);
+});
+
 
 newAlgorithmForm.addEventListener("submit", function(e) {
     e.preventDefault();
@@ -28,6 +61,7 @@ newAlgorithmForm.addEventListener("submit", function(e) {
         })
     }).then(response => {
         console.log(response);
+        location.reload();
     }).catch(error => {
         console.log(error);
     });
