@@ -11,8 +11,21 @@ CREATE TABLE Users (
 
 CREATE TABLE Portfolio (
 	portfolioId SERIAL PRIMARY KEY,
+  portfolioName VARCHAR(20),
 	userId INTEGER REFERENCES Users(userId),
 	balance DECIMAL(10, 2)
+);
+
+CREATE TABLE Stock (
+	stockId SERIAL PRIMARY KEY,
+	stockName VARCHAR(5),
+	stockPrice DECIMAL(10, 2)
+);
+
+CREATE TABLE Portfolio_Stock (
+	portfolioId INTEGER REFERENCES Portfolio(portfolioId),
+	stockId INTEGER REFERENCES Stock(stockId),
+	stockAmount INTEGER
 );
 
 CREATE TABLE Algorithms (
@@ -26,3 +39,5 @@ CREATE TABLE Algorithms (
   sellAbovePrice DECIMAL(10, 2),
   sellAboveStocks DECIMAL(10, 2)
 );
+
+INSERT INTO users (username, saltedPass, email) VALUES ('test', '$2b$10$DicT0edfb5vM8qVNHkjqmOSyRvOQaiCdLTBvxF7lsEjRkcEmGSgE.', 'qwert1234@gmail.com')
