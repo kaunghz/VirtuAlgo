@@ -3,5 +3,7 @@
 	"host": "localhost",
 	"database": "virtualgo",
 	"password": "password",
-	"port": 5432
+	"port": 5432,
+	"alpaca_api": "yourapi",
+	"alpaca_secret": "yoursecretkey"
 }
