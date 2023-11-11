@@ -1,25 +1,35 @@
-const Alpaca = require("@alpacahq/alpaca-trade-api");
+const Alpaca = require('@alpacahq/alpaca-trade-api')
+const API_KEY = 'PKI4VITKPPESG3OD7LKW';
+const API_SECRET = 'JXgFjUn6GJdtyFq635qypOKZamshcMZp0SUwyZ4c';
+const PAPER = true;
+class LongShort {
+  constructor(API_KEY, API_SECRET, PAPER){
+    this.alpaca = new this.Alpaca({
+      keyId: API_KEY, 
+      secretKey: API_SECRET, 
+      paper: PAPER
+    });
+    this.allStocks = ['DOMO', 'TLRY', 'SQ', 'MRO', 'AAPL', 'GM', 'SNAP', 'SHOP', 'SPLK', 'BA', 'AMZN', 'SUI', 'SUN', 'TSLA', 'CGC', 'SPWR', 'NIO', 'CAT', 'MSFT', 'PANW', 'OKTA', 'TWTR', 'TM', 'RTN', 'ATVI', 'GS', 'BAC', 'MS', 'TWLO', 'QCOM'];
+    // Format the allStocks variable for use in the class.
+    var temp = [];
+    this.allStocks.forEach((stockName) => {
+      temp.push({name: stockName, pc: 0});
+    });
+    this.allStocks = temp.slice();
 
-let apiFile = require("../env.json");
-const apiKey = apiFile["alpaca_api"];
-const apiSecret = apiFile["alpaca_secret"];
-const alpaca = new Alpaca({ keyId: apiKey, secretKey: apiSecret, paper: true });
-const symbol = 'AAPL';
-
-
-// We have to test it in real time market data time, the code has bugs
-// Function to update the HTML elements
-function updateRealTimeData(message) {
-  if (message.T === symbol) {
-    document.getElementById('symbol').textContent = message.T;
-    document.getElementById('lastPrice').textContent = message.p;
+    this.long = [];
+    this.short = [];
+    this.qShort = null;
+    this.qLong = null;
+    this.adjustedQLong = null;
+    this.adjustedQShort = null;
+    this.blacklist = new Set();
+    this.longAmount = 0;
+    this.shortAmount = 0;
+    this.timeToClose = null;
   }
 }
 
-alpaca.websocket.onConnect(() => {
-  alpaca.websocket.subscribe(['trade_updates', `T.${symbol}`]);
-});
-
-alpaca.websocket.onStockTradeUpdate(updateRealTimeData);
-
-alpaca.websocket.connect();
+// Run the LongShort class
+var ls = new LongShort(API_KEY, API_SECRET, PAPER);
+ls.run();
