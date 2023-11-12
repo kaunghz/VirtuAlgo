@@ -380,10 +380,20 @@ const alpaca = new Alpaca({
   paper: true,
 });
 
-app.get('/alpaca/market/:ticker', (req, res) => {
+app.get('/alpaca/market/:ticker', async (req, res) => {
   let ticker = req.params.ticker;
 
-  alpaca.getLatestBar(ticker).then(response => console.log(response)).catch(error => console.log(error));
+  const bars = alpaca.getBarsV2(ticker, {
+    start: "2022-04-01",
+    end: "2022-04-02",
+    timeframe: alpaca.newTimeframe(10, alpaca.timeframeUnit.MIN),
+    limit: 55,
+  });
+  const got = [];
+  for await (let b of bars) {
+    got.push(b);
+  }
+  console.log(got);
 });
 
 app.listen(port, hostname, () => {
