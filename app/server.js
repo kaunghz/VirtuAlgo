@@ -400,6 +400,7 @@ app.get('/alpaca/market/:ticker', async (req, res) => {
     got.push(b);
   }
   console.log(got);
+  res.json(got);
 });
 
 app.listen(port, hostname, () => {
