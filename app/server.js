@@ -383,12 +383,18 @@ const alpaca = new Alpaca({
 app.get('/alpaca/market/:ticker', async (req, res) => {
   let ticker = req.params.ticker;
 
+  let todaysDate = new Date();
+  let tomorrowsDate = new Date();
+  tomorrowsDate.setDate(todaysDate.getDate() + 1);
+
   const bars = alpaca.getBarsV2(ticker, {
-    start: "2022-04-01",
-    end: "2022-04-02",
+    start: todaysDate.toISOString().split("T")[0],
+    end: tomorrowsDate.toISOString().split("T")[0],
     timeframe: alpaca.newTimeframe(10, alpaca.timeframeUnit.MIN),
     limit: 55,
+    feed: 'iex',
   });
+  
   const got = [];
   for await (let b of bars) {
     got.push(b);
