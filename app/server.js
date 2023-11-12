@@ -120,3 +120,69 @@ app.post("/signin", (req, res) => {
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
+
+/*
+
+const Alpaca = require('@alpacahq/alpaca-trade-api');
+let alpa = express();
+
+
+// Replace 'your-api-key-id' and 'your-secret-key' with your actual Alpaca API key and secret
+const alpaca = new Alpaca({
+  keyId: 'your api',
+  secretKey: 'your secret key to test',
+  paper: true, // Set to false for live trading
+});
+
+// Define a route to handle the request
+alpa.get('/', async (req, res) => {
+  try {
+    const quotes = await getQuotes();
+    res.send(`<pre>${JSON.stringify(quotes, null, 2)}</pre>`);
+  } catch (error) {
+    res.status(500).send('Error fetching quotes');
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
+
+// Function to get quotes
+async function getQuotes() {
+  const quotes = [];
+  const quoteIter = await alpaca.getQuotes('MSFT', '2023-09-08', '2023-09-08', { limit: 10 });
+
+  for await (const quote of quoteIter) {
+    processQuote(quote);
+    quotes.push(quote);
+  }
+
+  return quotes;
+}
+
+// Function to process a quote
+function processQuote(quote) {
+  console.log(quote);
+}
+*/
+
+// Python sample that is working
+/*
+from alpaca_trade_api.common import URL
+from alpaca_trade_api.stream import Stream
+async def trade_callback(t):
+    print('trade', t)
+async def quote_callback(q):
+    print('quote', q)
+# Initiate Class Instance
+stream = Stream("apikey",
+                "secretkey",
+                base_url=URL('https://paper-api.alpaca.markets'),
+                data_feed='iex')  # <- replace to 'sip' if you have PRO subscription
+# subscribing to event
+stream.subscribe_trades(trade_callback, 'AAPL')
+stream.subscribe_quotes(quote_callback, 'IBM')
+stream.run()
+*/
