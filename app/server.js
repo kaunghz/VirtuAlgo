@@ -122,50 +122,47 @@ app.listen(port, hostname, () => {
 });
 
 /*
-
-const Alpaca = require('@alpacahq/alpaca-trade-api');
-let alpa = express();
-
-
-// Replace 'your-api-key-id' and 'your-secret-key' with your actual Alpaca API key and secret
+const Alpaca = require('alpaca-trade-api');
 const alpaca = new Alpaca({
-  keyId: 'your api',
-  secretKey: 'your secret key to test',
-  paper: true, // Set to false for live trading
+  keyId: 'apikey',
+  secretKey: 'secretkey',
+  paper: true, // Use 'false' for live trading
+  usePolygon: false, // Set to 'true' if you have a Polygon account
 });
 
-// Define a route to handle the request
-alpa.get('/', async (req, res) => {
-  try {
-    const quotes = await getQuotes();
-    res.send(`<pre>${JSON.stringify(quotes, null, 2)}</pre>`);
-  } catch (error) {
-    res.status(500).send('Error fetching quotes');
-  }
+// Define callback functions
+const tradeCallback = (trade) => {
+  console.log('trade', trade);
+};
+
+const quoteCallback = (quote) => {
+  console.log('quote', quote);
+};
+
+// Subscribe to real-time data
+const subscribeToData = async () => {
+  // Subscribe to trades for AAPL
+  const tradeStream = alpaca.data_ws.trades('AAPL');
+  tradeStream.onTrade(tradeCallback);
+
+  // Subscribe to quotes for IBM
+  const quoteStream = alpaca.data_ws.quotes('IBM');
+  quoteStream.onQuote(quoteCallback);
+};
+
+// Handle connection and subscription errors
+alpaca.data_ws.onConnect(() => {
+  console.log('Connected to Alpaca WebSocket');
+  subscribeToData();
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+alpaca.data_ws.onError((err) => {
+  console.error('WebSocket Error:', err);
 });
 
-// Function to get quotes
-async function getQuotes() {
-  const quotes = [];
-  const quoteIter = await alpaca.getQuotes('MSFT', '2023-09-08', '2023-09-08', { limit: 10 });
+// Connect to Alpaca WebSocket
+alpaca.data_ws.connect();
 
-  for await (const quote of quoteIter) {
-    processQuote(quote);
-    quotes.push(quote);
-  }
-
-  return quotes;
-}
-
-// Function to process a quote
-function processQuote(quote) {
-  console.log(quote);
-}
 */
 
 // Python sample that is working
