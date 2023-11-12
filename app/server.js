@@ -371,6 +371,20 @@ app.post("/update-stock", (req, res) => {
   });
 });
 
+// APLACA
+
+const Alpaca = require('@alpacahq/alpaca-trade-api');
+const alpaca = new Alpaca({
+  keyId: env.alpaca_key,
+  secretKey: env.alpaca_secret,
+  paper: true,
+});
+
+app.get('/alpaca/market/:ticker', (req, res) => {
+  let ticker = req.params.ticker;
+
+  alpaca.getLatestBar(ticker).then(response => console.log(response)).catch(error => console.log(error));
+});
 
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
