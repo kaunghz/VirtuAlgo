@@ -1,7 +1,8 @@
-let express = require("express");
-let path = require("path");
-let { Pool } = require("pg");
-let bcrypt = require("bcrypt");
+const express = require("express");
+const path = require("path");
+const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
+const session = require("express-session");
 let env = require("../env.json");
 
 let hostname = "localhost";
@@ -21,8 +22,15 @@ app.get('/', (req, res) => {
 app.use(express.json());
 app.use(express.static("login"));
 app.use(express.static("public"));
-app.use(express.static("login"));
+// app.use(express.static("login"));
 app.use(express.static("algotrade"));
+
+// Use session middleware
+app.use(session({
+  secret: 'test',
+  resave: false,
+  saveUninitialized: false,
+}))
 
 let saltRounds = 10;
 
@@ -49,8 +57,6 @@ app.post("/signup", (req, res) => {
       console.log("Invalid Credentials");
       return res.status(401).send();
     }
-  
-  
   pool
   .query("SELECT * FROM users WHERE username = $1", [username])
   .then((result) => {
@@ -65,6 +71,24 @@ app.post("/signup", (req, res) => {
         .query("INSERT INTO users (username, saltedPass, email) VALUES ($1, $2, $3)", [username, saltedPassword, email])
         .then(() => {
           console.log(username, "account created");
+          pool
+          .query("SELECT userID FROM users WHERE username = $1", [username])
+          .then((result) => {
+            if (result.rows.length === 0) {
+              console.log(username, "does not exists");
+              return res.status(401).send();
+            }
+            let userID = result.rows[0].userid;
+            console.log(userID);
+            req.session.user_id = userID;
+            req.session.username = username;
+            req.session.authenticated = true;
+          })
+          .catch((error) => {
+            console.log("SQL Select From Users:", error);
+            res.status(500).send();
+          });
+
           res.status(200).send();
         })
         .catch((error) => {
@@ -90,18 +114,22 @@ app.post("/signin", (req, res) => {
   let username = req.body.username;
   let plaintextPassword = req.body.plaintextPassword;
   pool
-    .query("SELECT saltedPass FROM users WHERE username = $1", [username])
+    .query("SELECT userID, saltedPass FROM users WHERE username = $1", [username])
     .then((result) => {
       if (result.rows.length === 0) {
         console.log(username, "does not exists");
         return res.status(401).send();
       }
+      let userID = result.rows[0].userid;
       let saltedPassword = result.rows[0].saltedpass;
       bcrypt
         .compare(plaintextPassword, saltedPassword)
         .then((passwordMatched) => {
           if (passwordMatched) {
             console.log(username, "logged in");
+            req.session.user_id = userID;
+            req.session.username = username;
+            req.session.authenticated = true;
             res.status(200).send();
           } else {
             console.log(username, "could not logged in");
@@ -122,7 +150,7 @@ app.post("/signin", (req, res) => {
 app.post("/new-algorithm", (req, res) => {
   let body = req.body;
   console.log(body);
-
+  console.log(req.session);
   let name = body['new-algorithm-name'];
   let buyBelowPrice = parseFloat(body['buy-below-price']);
   let buyBelowStocks = parseFloat(body['buy-below-stocks']);
@@ -131,17 +159,31 @@ app.post("/new-algorithm", (req, res) => {
   let sellAbovePrice = parseFloat(body['sell-above-price']);
   let sellAboveStocks = parseFloat(body['sell-above-stocks']);
 
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  let userID = req.session.user_id;
+
   pool.query(
     'INSERT INTO ALGORITHMS (userId, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-    [1, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks]
+    [userID, name, buyBelowPrice, buyBelowStocks, sellBelowPrice, sellBelowStocks, sellAbovePrice, sellAboveStocks]
   );
 
   res.status(200).send();
 });
 
 app.get("/get-algorithms", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  let userID = req.session.user_id;
+  console.log(userID);
   pool.query(
-    "SELECT * FROM ALGORITHMS"
+    "SELECT * FROM ALGORITHMS WHERE userid = $1", [userID]
   ).then((result) => {
     let rows = result.rows;
     console.log(rows);
