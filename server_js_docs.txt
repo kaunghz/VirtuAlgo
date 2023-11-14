@@ -1,0 +1,110 @@
+POST /signup
+
+    Content-Type: application/json
+    {"email": "---", "username": "---", "plaintextPassword": "---"}
+
+    Requirements:
+    String username length 1-20
+    String plaintextPassword length 8-25 
+    Username cannot already exist
+    Password needs a special char, capital letter and number
+
+
+POST /signin
+
+    Content-Type: application/json
+    {"username": "---", "plaintextPassword": "---"}
+
+    Requirements:
+    String username must be in table
+    String plaintextPassword must correspond to the username
+
+
+POST /new-algorithm
+
+    // TODO
+
+
+GET /new-algorithm
+
+    // TODO
+
+
+POST /add-portfolio
+
+    Content-Type: application/json
+    {"name": "---", "username": "---"}
+
+    Requirements:
+    String name length 1-20
+    String username length 1-20
+
+    Portfolios are created with a balance of 10,000.00
+
+
+POST /update-portfolio
+
+    Content-Type: application/json
+    {"name": "---", "username": "---", "balance": "---"}
+
+    Requirements:
+    String name length 1-20
+    String username length 1-20
+    Number balance 0-10,000,000.00
+    Username must exist and have a portfolio with the same Name
+
+
+POST /add-stock
+
+    Content-Type: application/json
+    {"name": "---", "price": "---"}
+
+    Requirements:
+    String name length 1-5
+    Number price 0-10,000,000.00
+    Stock cannot already exist
+
+POST /update-stock
+
+    Content-Type: application/json
+    {"name": "---", "price": "---"}
+
+    Requirements:
+    String name length 1-5
+    Number price 0-10,000,000.00
+    Stock must already exist
+
+
+POST /buy-stock
+
+    Content-Type: application/json
+    {"stockName": "---", "amount": "---", "username": "---", "portfolioName": "---"}
+
+    Requirements:
+    String stockName length 1-5
+    Number amount 0-1,000,000,000
+    String username length 1-20
+    String portfolioName length 1-20
+    Stock must already exist
+    Username must already exist
+    Portfolio must already exist
+
+
+POST /sell-stock
+
+    Content-Type: application/json
+    {"stockName": "---", "amount": "---", "username": "---", "portfolioName": "---"}
+
+    Requirements:
+    String stockName length 1-5
+    Number amount 0-1,000,000,000
+    String username length 1-20
+    String portfolioName length 1-20
+    Stock must already exist
+    Amount must be less than current amount;
+    Username must already exist
+    Portfolio must already exist
+
+curl -H "Content-Type: application/json" -d "{\"name\": \"port1\", \"username\": \"test\"}" http://localhost:3000/add-portfolio
+curl -H "Content-Type: application/json" -d "{\"name\": \"APPL\", \"price\": 45.56}" http://localhost:3000/add-stock
+curl -H "Content-Type: application/json" -d "{\"stockName\": \"APPL\", \"amount\": 30, \"username\": \"test\", \"portfolioName\": \"port1\"}" http://localhost:3000/buy-stock
