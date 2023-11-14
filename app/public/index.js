@@ -21,3 +21,41 @@ stockSearchButton.addEventListener("click", () => {
         console.log(error);
     })
 });
+
+// Buy and Sell Skeleton
+
+let buyButton = document.getElementById("buy");
+    
+buyButton.addEventListener("click", () => {
+  fetch("/buy-stock", {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
+  }).then(response => {
+    console.log("Status:", response.status);
+  }).then(body => {
+    console.log("Body:", body);
+  }).catch(error => {
+    console.log(error);
+  });
+});
+
+let sellButton = document.getElementById("sell");
+    
+sellButton.addEventListener("click", () => {
+  fetch("/sell-stock", {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
+  }).then(response => {
+    console.log("Status:", response.status);
+  }).then(body => {
+    console.log("Body:", body);
+  }).catch(error => {
+    console.log(error);
+  });
+});
