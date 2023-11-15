@@ -204,15 +204,14 @@ app.post("/add-portfolio", (req, res) => {
     !username ||
     typeof portfolioName !== "string" ||
     typeof username !== "string" ||
-    portfolioName.length < 1 || 
-    portfolioName.length > 20 || 
-    username.length < 1 || 
-    username.length > 20) 
+    portfolioName.length < 1 ||
+    portfolioName.length > 20 ||
+    username.length < 1 ||
+    username.length > 20)
     {
       console.log("Invalid username or portfolio name");
       return res.status(401).send();
     }
-  
 
   pool
   .query("SELECT userid FROM users WHERE username = $1", [username])
@@ -260,17 +259,16 @@ app.post("/update-portfolio", (req, res) => {
     typeof portfolioName !== "string" ||
     typeof username !== "string" ||
     typeof balance !== "number" ||
-    portfolioName.length < 1 || 
-    portfolioName.length > 20 || 
-    username.length < 1 || 
+    portfolioName.length < 1 ||
+    portfolioName.length > 20 ||
+    username.length < 1 ||
     username.length > 20 ||
-    balance < 0 || 
-    balance > 10000000.00) 
+    balance < 0 ||
+    balance > 10000000.00)
     {
       console.log("Invalid username or portfolio name");
       return res.status(401).send();
     }
-  
 
   pool
   .query("SELECT userid FROM users WHERE username = $1", [username])
@@ -326,15 +324,14 @@ app.post("/add-stock", (req, res) => {
     !stockPrice ||
     typeof stockName !== "string" ||
     typeof stockPrice !== "number" ||
-    stockName.length < 1 || 
-    stockName.length > 5 || 
-    stockPrice < 0 || 
-    stockPrice > 10000000.00) 
+    stockName.length < 1 ||
+    stockName.length > 5 ||
+    stockPrice < 0 ||
+    stockPrice > 10000000.00)
     {
       console.log("Invalid stock");
       return res.status(401).send();
     }
-  
 
   pool
   .query("SELECT * FROM stock WHERE stockName = $1", [stockName])
@@ -377,15 +374,14 @@ app.post("/update-stock", (req, res) => {
     !stockPrice ||
     typeof stockName !== "string" ||
     typeof stockPrice !== "number" ||
-    stockName.length < 1 || 
-    stockName.length > 5 || 
-    stockPrice < 0 || 
-    stockPrice > 10000000.00) 
+    stockName.length < 1 ||
+    stockName.length > 5 ||
+    stockPrice < 0 ||
+    stockPrice > 10000000.00)
     {
       console.log("Invalid stock");
       return res.status(401).send();
     }
-  
 
   pool
   .query("SELECT * FROM stock WHERE stockName = $1", [stockName])
@@ -431,19 +427,18 @@ app.post("/buy-stock", (req, res) => {
     !portfolioName ||
     typeof stockName !== "string" ||
     typeof stockAmount !== "number" ||
-    stockName.length < 1 || 
-    stockName.length > 5 || 
-    stockAmount < 0 || 
+    stockName.length < 1 ||
+    stockName.length > 5 ||
+    stockAmount < 0 ||
     stockAmount > 1000000000 ||
-    username.length < 1 || 
+    username.length < 1 ||
     username.length > 20 ||
-    portfolioName.length < 1 || 
-    portfolioName.length > 20) 
+    portfolioName.length < 1 ||
+    portfolioName.length > 20)
     {
       console.log("Invalid stock or amount or username or portfolio name.");
       return res.status(401).send();
     }
-  
 
   pool
   .query("SELECT stockid FROM stock WHERE stockName = $1", [stockName])
@@ -540,19 +535,18 @@ app.post("/sell-stock", (req, res) => {
     !portfolioName ||
     typeof stockName !== "string" ||
     typeof stockAmount !== "number" ||
-    stockName.length < 1 || 
-    stockName.length > 5 || 
-    stockAmount < 0 || 
+    stockName.length < 1 ||
+    stockName.length > 5 ||
+    stockAmount < 0 ||
     stockAmount > 1000000000 ||
-    username.length < 1 || 
+    username.length < 1 ||
     username.length > 20 ||
-    portfolioName.length < 1 || 
-    portfolioName.length > 20) 
+    portfolioName.length < 1 ||
+    portfolioName.length > 20)
     {
       console.log("Invalid stock or amount or username or portfolio name.");
       return res.status(401).send();
     }
-  
 
     pool
     .query("SELECT stockid FROM stock WHERE stockName = $1", [stockName])
