@@ -78,6 +78,7 @@ function makeChart(stockPrices, symbol) {
             },
         }
     });
+    makeBuySellButtons();
 }
 
 stockSearchButton.addEventListener("click", () => {
@@ -91,13 +92,29 @@ stockSearchButton.addEventListener("click", () => {
 });
 
 // Buy and Sell Skeleton
+function makeBuySellButtons() {
+    // Create buttons dynamically
+    var buyStockButton = document.createElement("button");
+    buyStockButton.textContent = "Buy Stock";
+    buyStockButton.addEventListener("click", function() {
+        console.log("buy clicked");
+        buy();
+    });
+    var sellStockButton = document.createElement("button");
+    sellStockButton.textContent = "Sell Stock";
+    sellStockButton.addEventListener("click", function() {
+        console.log("sell clicked");
+        sell();
+    });
+    document.body.appendChild(buyStockButton);
+    document.body.appendChild(document.createElement("br"));
+    document.body.appendChild(sellStockButton);
+}
 
-let buyButton = document.getElementById("buy");
-    
-buyButton.addEventListener("click", () => {
+function buy() {
   fetch("/buy-stock", {
     method: "POST",
-    headers: { 
+    headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
@@ -108,11 +125,9 @@ buyButton.addEventListener("click", () => {
   }).catch(error => {
     console.log(error);
   });
-});
+};
 
-let sellButton = document.getElementById("sell");
-
-sellButton.addEventListener("click", () => {
+function sell() {
   fetch("/sell-stock", {
     method: "POST",
     headers: { 
@@ -126,4 +141,4 @@ sellButton.addEventListener("click", () => {
   }).catch(error => {
     console.log(error);
   });
-});
+};
