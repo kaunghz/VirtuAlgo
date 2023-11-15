@@ -38,9 +38,9 @@ function generateTimeLabels(numberOfPoints, intervalMinutes) {
     let currentTime = new Date();
     for (let i = 0; i < numberOfPoints; i++) {
         labels.push(`${currentTime.getHours()}:${(currentTime.getMinutes() < 10 ? '0' : '') + currentTime.getMinutes()}`);
-        currentTime.setTime(currentTime.getTime() + intervalMinutes * 60 * 1000);
+        currentTime.setTime(currentTime.getTime() - intervalMinutes * 60 * 1000);
     }
-    return labels;
+    return labels.reverse();
 }
 
 /*
@@ -111,7 +111,7 @@ buyButton.addEventListener("click", () => {
 });
 
 let sellButton = document.getElementById("sell");
-    
+
 sellButton.addEventListener("click", () => {
   fetch("/sell-stock", {
     method: "POST",
