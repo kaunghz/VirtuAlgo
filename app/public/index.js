@@ -46,7 +46,7 @@ function generateTimeLabels(numberOfPoints, intervalMinutes) {
 /*
 generate the chart given the array of stock prices
 */
-function makeChart(stockPrices, symbol) {
+function makeChart(stocks, symbol) {
     var existingChart = Chart.getChart("stockChart");
     if (existingChart) {
         existingChart.destroy();
@@ -61,14 +61,20 @@ function makeChart(stockPrices, symbol) {
     chartContainer.appendChild(canvas);
     document.body.appendChild(chartContainer);
 
-    var labels = generateTimeLabels(stockPrices.length, 1);
+    var labels = generateTimeLabels(stocks.length, 1);
+
+    var curStock = stocks[0];
+    var prices = []
+    for (var i in stocks) {
+        prices.push(stocks[i].ClosePrice);
+    }
     const liveChart = new Chart(stockChart, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
                 label: symbol,
-                data: stockPrices,
+                data: prices.reverse(),
                 fill: true,
             }]
         },
@@ -78,6 +84,15 @@ function makeChart(stockPrices, symbol) {
             },
         }
     });
+
+    var curPricesDict = {
+        "Open": curStock.OpenPrice,
+        "High": curStock.HighPrice,
+        "Low": curStock.LowPrice,
+        "Current": curStock.ClosePrice
+    }
+    console.log (curPricesDict);
+    displayCurrentStockPrice(curPricesDict);
     makeBuySellButtons();
 }
 
@@ -90,6 +105,19 @@ stockSearchButton.addEventListener("click", () => {
         fetchStock(ticker);
     }, 2000);
 });
+
+function displayCurrentStockPrice(curPrices) {
+    // BUG -------------- it does not update
+    for (var key in curPrices) {
+        var valueDisplay = document.createElement("span");
+        valueDisplay.textContent += (key + ": " + curPrices[key] + "\n");
+        valueDisplay.style.marginTop = "10px";
+        valueDisplay.style.fontWeight = "bold";
+        document.body.appendChild(valueDisplay);
+        document.body.appendChild(valueDisplay);
+        document.body.appendChild(document.createElement("br"));
+    }
+}
 
 // Buy and Sell Skeleton
 function makeBuySellButtons() {
@@ -111,6 +139,7 @@ function makeBuySellButtons() {
     document.body.appendChild(sellStockButton);
 }
 
+// buy and sell backend
 function buy() {
   fetch("/buy-stock", {
     method: "POST",
@@ -130,7 +159,7 @@ function buy() {
 function sell() {
   fetch("/sell-stock", {
     method: "POST",
-    headers: { 
+    headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
