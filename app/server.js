@@ -390,13 +390,12 @@ app.get('/alpaca/market/:ticker', async (req, res) => {
     start: todaysDate.toISOString().split("T")[0],
     end: tomorrowsDate.toISOString().split("T")[0],
     timeframe: alpaca.newTimeframe(1, alpaca.timeframeUnit.MIN),
-    limit: 55,
+    limit: 30,
     feed: 'iex',
   });
-  console.log(bars);
   const got = [];
   for await (let b of bars) {
-    got.push(b);
+    got.push(b.ClosePrice);
   }
   console.log(got);
   res.json(got);
