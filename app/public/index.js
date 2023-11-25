@@ -163,6 +163,7 @@ function makeBuySellButtons(curPrice) {
     let sellStock = document.getElementById("sell-stock");
 
     if (buyStock || sellStock) {
+        buySellEventAdded = false;
         buyStock = null;
         sellStock = null;
     }
