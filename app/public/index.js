@@ -183,16 +183,9 @@ function makeBuySellButtons(curPrice) {
         document.body.appendChild(sellStockButton);
         document.body.appendChild(document.createElement("br"));
     }
-    /*
-    TOFIX: ------------- does not get the latest price ************************************
-There is a bug
-Details: This below code attaches event listeners to the buy and sell buttons after the chart is created.
 
-This functions makeBuySellButtons(curPrice) is invoked every second with possibly new "curPrice" value in it.
-The bug here is the event does not get the latest "curPrice", it sticks to the first "curPrice" call.
-
-Please help fixing it @Leo or @Alex
-    */
+    // This below code attaches event listeners to the buy and sell buttons after the chart is created.
+    
     if (!buySellEventAdded) {
         buySellEventAdded = true;
         buyStockButton.addEventListener("click", buyHandler);
