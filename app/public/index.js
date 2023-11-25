@@ -2,6 +2,12 @@ let stockSearch = document.getElementById("stockSearch");
 let stockSearchButton = document.getElementById("stockSearchButton");
 let errorMsg = document.getElementById("ErrorMsg");
 let balanceBlock = document.getElementById('balance');
+/*
+    TODO: Fectch this balance from the database
+
+DATABASE INTEGRATION TASK 1
+Now the default is set 100k initial. We should fetch this value from the database.
+*/
 let balance = 100000;
 let intervalID;
 // Dynamic Components
@@ -147,9 +153,13 @@ function displayCurrentStockPrice(curPrices) {
     valueDisplay.innerHTML = prices
 }
 
+/*
+    TODO: Make the stock count input box for buy and sell button
+*/
 // Buy and Sell Skeleton
 function makeBuySellButtons(curPrice) {
     // Create buttons dynamically
+    console.log(curPrice)
     if (!buyStockButton) {
         buyStockButton = document.createElement("button");
         buyStockButton.textContent = "Buy Stock";
@@ -162,12 +172,22 @@ function makeBuySellButtons(curPrice) {
         document.body.appendChild(sellStockButton);
         document.body.appendChild(document.createElement("br"));
     }
+    /*
+    TOFIX: ------------- does not get the latest price ************************************
+There is a bug
+Details: This below code attaches event listeners to the buy and sell buttons after the chart is created.
+
+This functions makeBuySellButtons(curPrice) is invoked every second with possibly new "curPrice" value in it.
+The bug here is the event does not get the latest "curPrice", it sticks to the first "curPrice" call.
+
+Please help fixing it @Leo or @Alex
+    */
     if (!buySellEventAdded) {
         buySellEventAdded = true;
         buyStockButton.addEventListener("click", buyHandler);
         sellStockButton.addEventListener("click", sellHandler);
     }
-    // THIS HAS A BUG ------------- does not get the latest price
+
     function buyHandler() {
         buy(curPrice);
     }
@@ -176,9 +196,30 @@ function makeBuySellButtons(curPrice) {
     }
 }
 
+
+/*
+    TODO: Integrate buy and sell to database
+
+DATABASE INTEGRATION TASK 2
+Now this will do computation of subtration (buy) and addition (sell) to the "balance" variable.
+
+What is left is we must update the new values into the database. The values to update are:
+
+For buy:
+- new balance (subtraced balance)
+- stock name
+- how many stock
+- total price of the stock
+
+For sell:
+- new balance (added balance after computation)
+- total price of the leftover stock (say you holds 4 stocks with total $100, sold 3 for $30 each,
+        then it should update 1 stock left with total $25, meaning you made $15 profit)
+(since we don't hold the history of stock selling, we don't need stock name and how many)
+*/
+
 // buy and sell backend
 function buy(curPrice) {
-    console.log(curPrice, "------------------", balance, "==========", balance - curPrice)
     balance -= curPrice;
     fetch("/buy-stock", {
         method: "POST",
