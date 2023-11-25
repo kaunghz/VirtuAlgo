@@ -158,17 +158,28 @@ function displayCurrentStockPrice(curPrices) {
 */
 // Buy and Sell Skeleton
 function makeBuySellButtons(curPrice) {
+    // Destroy buttons if they exists
+    let buyStock = document.getElementById("buy-stock");
+    let sellStock = document.getElementById("sell-stock");
+
+    if (buyStock || sellStock) {
+        buyStock = null;
+        sellStock = null;
+    }
+
     // Create buttons dynamically
     console.log(curPrice)
     if (!buyStockButton) {
         buyStockButton = document.createElement("button");
         buyStockButton.textContent = "Buy Stock";
+        buyStockButton.id = "buy-stock";
         document.body.appendChild(buyStockButton);
         document.body.appendChild(document.createElement("br"));
     }
     if (!sellStockButton) {
         sellStockButton = document.createElement("button");
         sellStockButton.textContent = "Sell Stock";
+        buyStockButton.id = "sell-stock";
         document.body.appendChild(sellStockButton);
         document.body.appendChild(document.createElement("br"));
     }
