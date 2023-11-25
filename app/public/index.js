@@ -134,7 +134,7 @@ function makeChart(stocks, symbol) {
         "Current": curStock.ClosePrice
     }
     displayCurrentStockPrice(curPricesDict);
-    makeBuySellButtons(curStock.ClosePrice);
+    makeBuySellButtons(symbol, curStock.ClosePrice);
 }
 
 function displayCurrentStockPrice(curPrices) {
@@ -157,7 +157,7 @@ function displayCurrentStockPrice(curPrices) {
     TODO: Make the stock count input box for buy and sell button
 */
 // Buy and Sell Skeleton
-function makeBuySellButtons(curPrice) {
+function makeBuySellButtons(ticker, curPrice) {
     // Destroy buttons if they exists
     let buyStock = document.getElementById("buy-stock");
     let sellStock = document.getElementById("sell-stock");
@@ -194,10 +194,10 @@ function makeBuySellButtons(curPrice) {
     }
 
     function buyHandler() {
-        buy(curPrice);
+        buy(ticker, curPrice);
     }
     function sellHandler() {
-        sell(curPrice);
+        sell(ticker, curPrice);
     }
 }
 
@@ -224,14 +224,14 @@ For sell:
 */
 
 // buy and sell backend
-function buy(curPrice) {
+function buy(ticker, curPrice) {
     balance -= curPrice;
     fetch("/buy-stock", {
         method: "POST",
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, amount: curPrice, username: "test", portfolioName: "port1"}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -248,7 +248,7 @@ function sell(curPrice) {
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, amount: curPrice, username: "test", portfolioName: "port1"}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
