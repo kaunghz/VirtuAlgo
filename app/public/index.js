@@ -85,7 +85,7 @@ function generateTimeLabels(numberOfPoints, intervalMinutes) {
 /*
 generate the chart given the array of stock prices
 */
-function makeChart(stocks, symbol) {
+function makeChart(stocks, ticker) {
     var existingChart = Chart.getChart("stockChart");
     if (existingChart) {
         existingChart.destroy();
@@ -105,7 +105,7 @@ function makeChart(stocks, symbol) {
     }
     var labels = generateTimeLabels(stocks.length, 1);
 
-    var curStock = stocks[0];
+    var curStock = stocks[stocks.length - 1];
     var prices = []
     for (var i in stocks) {
         prices.push(stocks[i].ClosePrice);
@@ -115,7 +115,7 @@ function makeChart(stocks, symbol) {
         data: {
             labels: labels,
             datasets: [{
-                label: symbol,
+                label: ticker,
                 data: prices.reverse(),
                 fill: true,
             }]
@@ -134,7 +134,7 @@ function makeChart(stocks, symbol) {
         "Current": curStock.ClosePrice
     }
     displayCurrentStockPrice(curPricesDict);
-    makeBuySellButtons(curStock.ClosePrice);
+    makeBuySellButtons(ticker, curStock.ClosePrice);
 }
 
 function displayCurrentStockPrice(curPrices) {
@@ -157,31 +157,37 @@ function displayCurrentStockPrice(curPrices) {
     TODO: Make the stock count input box for buy and sell button
 */
 // Buy and Sell Skeleton
-function makeBuySellButtons(curPrice) {
+function makeBuySellButtons(ticker, curPrice) {
+    // Destroy buttons if they exists
+    let buyStock = document.getElementById("buy-stock");
+    let sellStock = document.getElementById("sell-stock");
+
+    if (buyStock || sellStock) {
+        buySellEventAdded = false;
+        buyStock = null;
+        sellStock = null;
+    }
+
     // Create buttons dynamically
-    console.log(curPrice)
+    console.log(ticker);
+    console.log(curPrice);
     if (!buyStockButton) {
         buyStockButton = document.createElement("button");
         buyStockButton.textContent = "Buy Stock";
+        buyStockButton.id = "buy-stock";
         document.body.appendChild(buyStockButton);
         document.body.appendChild(document.createElement("br"));
     }
     if (!sellStockButton) {
         sellStockButton = document.createElement("button");
         sellStockButton.textContent = "Sell Stock";
+        buyStockButton.id = "sell-stock";
         document.body.appendChild(sellStockButton);
         document.body.appendChild(document.createElement("br"));
     }
-    /*
-    TOFIX: ------------- does not get the latest price ************************************
-There is a bug
-Details: This below code attaches event listeners to the buy and sell buttons after the chart is created.
 
-This functions makeBuySellButtons(curPrice) is invoked every second with possibly new "curPrice" value in it.
-The bug here is the event does not get the latest "curPrice", it sticks to the first "curPrice" call.
-
-Please help fixing it @Leo or @Alex
-    */
+    // This below code attaches event listeners to the buy and sell buttons after the chart is created.
+    
     if (!buySellEventAdded) {
         buySellEventAdded = true;
         buyStockButton.addEventListener("click", buyHandler);
@@ -189,10 +195,10 @@ Please help fixing it @Leo or @Alex
     }
 
     function buyHandler() {
-        buy(curPrice);
+        buy(ticker, curPrice);
     }
     function sellHandler() {
-        sell(curPrice);
+        sell(ticker, curPrice);
     }
 }
 
@@ -219,14 +225,14 @@ For sell:
 */
 
 // buy and sell backend
-function buy(curPrice) {
+function buy(ticker, curPrice) {
     balance -= curPrice;
     fetch("/buy-stock", {
         method: "POST",
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, amount: curPrice, username: "test", portfolioName: "port1"}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -243,7 +249,7 @@ function sell(curPrice) {
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: "APPL", amount: 45.56, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, amount: curPrice, username: "test", portfolioName: "port1"}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
