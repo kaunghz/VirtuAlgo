@@ -85,7 +85,7 @@ function generateTimeLabels(numberOfPoints, intervalMinutes) {
 /*
 generate the chart given the array of stock prices
 */
-function makeChart(stocks, symbol) {
+function makeChart(stocks, ticker) {
     var existingChart = Chart.getChart("stockChart");
     if (existingChart) {
         existingChart.destroy();
@@ -115,7 +115,7 @@ function makeChart(stocks, symbol) {
         data: {
             labels: labels,
             datasets: [{
-                label: symbol,
+                label: ticker,
                 data: prices.reverse(),
                 fill: true,
             }]
@@ -134,7 +134,7 @@ function makeChart(stocks, symbol) {
         "Current": curStock.ClosePrice
     }
     displayCurrentStockPrice(curPricesDict);
-    makeBuySellButtons(symbol, curStock.ClosePrice);
+    makeBuySellButtons(ticker, curStock.ClosePrice);
 }
 
 function displayCurrentStockPrice(curPrices) {
@@ -169,7 +169,8 @@ function makeBuySellButtons(ticker, curPrice) {
     }
 
     // Create buttons dynamically
-    console.log(curPrice)
+    console.log(ticker);
+    console.log(curPrice);
     if (!buyStockButton) {
         buyStockButton = document.createElement("button");
         buyStockButton.textContent = "Buy Stock";
