@@ -105,7 +105,7 @@ function makeChart(stocks, ticker) {
     }
     var labels = generateTimeLabels(stocks.length, 1);
 
-    var curStock = stocks[stocks.length - 1];
+    var curStock = stocks[0];
     var prices = []
     for (var i in stocks) {
         prices.push(stocks[i].ClosePrice);
