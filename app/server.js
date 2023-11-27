@@ -595,7 +595,7 @@ app.post("/sell-stock", (req, res) => {
                   (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
                   AND portfolioname=$2) \
                   AND stockname=$3 \
-                  AND stockamount>$4", [userID, portfolioName, stockName, stockSellCount])
+                  AND stockamount>=$4", [userID, portfolioName, stockName, stockSellCount])
                 .then((result) => {
                   if (result.rows.length > 0) {
                     pool
