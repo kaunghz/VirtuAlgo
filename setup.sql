@@ -41,4 +41,5 @@ CREATE TABLE Algorithms (
   sellAboveStocks DECIMAL(10, 2)
 );
 
-INSERT INTO users (username, saltedPass, email) VALUES ('test', '$2b$10$DicT0edfb5vM8qVNHkjqmOSyRvOQaiCdLTBvxF7lsEjRkcEmGSgE.', 'qwert1234@gmail.com')
+INSERT INTO users (username, saltedPass, email) VALUES ('test', '$2b$10$DicT0edfb5vM8qVNHkjqmOSyRvOQaiCdLTBvxF7lsEjRkcEmGSgE.', 'qwert1234@gmail.com');
+INSERT INTO portfolio (portfolioName, userId, balance) VALUES ('port1', 1, 10000.00);

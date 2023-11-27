@@ -733,7 +733,7 @@ app.get('/alpaca/market/:ticker', async (req, res) => {
   for await (let b of bars) {
     got.push(b);
   }
-  console.log(got);
+  //console.log(got);
   res.json(got);
 });
 

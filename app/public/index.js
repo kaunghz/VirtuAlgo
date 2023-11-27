@@ -51,7 +51,7 @@ function fetchStock(ticker) {
         }
         return response.json();
     }).then((response) => {
-        console.log(response);
+        //console.log(response);
         if (response.length == 0) {
             errorMsg.textContent = "Stock Market is Closed.";
         }
@@ -173,34 +173,38 @@ function makeBuySellButtons(ticker, curPrice) {
     }
 
     // Create buttons dynamically
-    console.log(ticker);
-    console.log(curPrice);
+    // console.log(ticker);
+    // console.log(curPrice);
 
     if (!buyStockButton) {
+        buyStockCount = document.createElement("input");
+        buyStockCount.id = "buy-stock-count";
+        buyStockCount.type = "number";
+        buyStockCount.placeholder = "Number of Shares to Buy...";
+        document.body.appendChild(buyStockCount);
+        
         buyStockButton = document.createElement("button");
         buyStockButton.textContent = "Buy Stock";
         buyStockButton.id = "buy-stock";
         document.body.appendChild(buyStockButton);
         
-        buyStockCount = document.createElement("input");
-        buyStockCount.id = "buy-stock-count";
-        buyStockCount.type = "number";
-        buyStockCount.placeholder = "Number of Shares to Buy...";
-        document.appendChild(buyStockCount);
+
 
         document.body.appendChild(document.createElement("br"));
     }
     if (!sellStockButton) {
+        sellStockCount = document.createElement("input");
+        sellStockCount.id = "sell-stock-count";
+        sellStockCount.type = "number";
+        sellStockCount.placeholder = "Number of Shares to Sell...";
+        document.body.appendChild(sellStockCount);
+
         sellStockButton = document.createElement("button");
         sellStockButton.textContent = "Sell Stock";
         buyStockButton.id = "sell-stock";
         document.body.appendChild(sellStockButton);
 
-        sellStockCount = document.createElement("input");
-        sellStockCount.id = "sell-stock-count";
-        sellStockCount.type = "number";
-        sellStockCount.placeholder = "Number of Shares to Sell...";
-        document.appendChild(sellStockCount);
+
 
         document.body.appendChild(document.createElement("br"));
     }
