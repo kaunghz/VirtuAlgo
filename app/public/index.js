@@ -243,8 +243,8 @@ For sell:
 */
 
 // buy and sell backend
-function buy(ticker, numShares) {
-    const curPrice = getClosePrice(ticker);
+async function buy(ticker, numShares) {
+    const curPrice = await getClosePrice(ticker);
 
     balance -= curPrice * parseFloat(numShares);
 
@@ -255,7 +255,7 @@ function buy(ticker, numShares) {
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares, portfolioName: "port1"}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -319,8 +319,8 @@ function sell(ticker, curPrice, numShares, totalStockPrice, totalSharesOwned) {
     });
 };
 
-function getClosePrice(ticker) {
-    fetch(
+async function getClosePrice(ticker) {
+    return await fetch(
         `/alpaca/market/${ticker}`
     ).then((response) => {
         if (!response.ok) {
