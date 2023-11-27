@@ -314,7 +314,7 @@ function buy(ticker, curPrice, numShares) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({username: "test", portfolioName: "port1", balance: balance})
+        body: JSON.stringify({portfolioName: "port1", balance: balance})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -352,7 +352,7 @@ function sell(ticker, curPrice, numShares, totalStockPrice, totalSharesOwned) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({username: "test", portfolioName: "port1", balance: balance})
+        body: JSON.stringify({portfolioName: "port1", balance: balance})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {

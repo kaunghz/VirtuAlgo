@@ -25,7 +25,8 @@ CREATE TABLE Stock (
 CREATE TABLE Portfolio_Stock (
 	portfolioId INTEGER REFERENCES Portfolio(portfolioId),
 	stockId INTEGER REFERENCES Stock(stockId),
-	stockAmount INTEGER
+	stockAmount INTEGER,
+  totalPrice DECIMAL(10, 2)
 );
 
 CREATE TABLE Algorithms (

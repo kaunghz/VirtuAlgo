@@ -30,10 +30,10 @@ GET /new-algorithm
     // TODO
 
 
-POST /add-portfolio
+POST /add-portfolio **Now done with session IDs
 
     Content-Type: application/json
-    {"name": "---", "username": "---"}
+    {"portfolioName": "---", "username": "---"}
 
     Requirements:
     String name length 1-20
@@ -42,10 +42,10 @@ POST /add-portfolio
     Portfolios are created with a balance of 10,000.00
 
 
-POST /update-portfolio
+POST /update-portfolio **Now done with session IDs
 
     Content-Type: application/json
-    {"name": "---", "username": "---", "balance": "---"}
+    {"portfolioName": "---", "username": "---", "balance": "---"}
 
     Requirements:
     String name length 1-20
