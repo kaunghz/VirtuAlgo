@@ -456,13 +456,11 @@ app.get("/get-stock", (req, res) => {
 app.post("/buy-stock", (req, res) => {
   let stockName = req.body.stockName;
   let stockCount = req.body.stockCount;
-  let totalStockAmount = req.body.totalStockAmount;
   let username = req.body.username;
   let portfolioName = req.body.portfolioName;
 
   try {
     stockCount = parseInt(stockCount);
-    totalStockAmount = parseFloat(totalStockAmount);
   } catch (error) {
     console.log("Stock amount or Stock Amount is not formatted correctly");
     return res.status(401).send();
@@ -470,17 +468,13 @@ app.post("/buy-stock", (req, res) => {
 
   if(!stockName ||
     !stockCount ||
-    !totalStockAmount ||
     !username ||
     !portfolioName ||
     typeof stockName !== "string" ||
     typeof stockCount !== "number" ||
-    typeof totalStockAmount !== "number" ||
     stockName.length < 1 ||
     stockName.length > 5 ||
     stockCount < 0 ||
-    totalStockAmount < 0 ||
-    totalStockAmount > 1000000000 ||
     username.length < 1 ||
     username.length > 20 ||
     portfolioName.length < 1 ||
@@ -515,12 +509,14 @@ app.post("/buy-stock", (req, res) => {
               .then((result) => {
                 if (result.rows.length > 0) {
                   pool
-                  .query("UPDATE portfolio_stock SET stockAmount=stockamount+$4, totalprice=$5 WHERE portfolioid= \
+                  .query("UPDATE portfolio_stock SET stockAmount=stockamount+$4, totalprice=totalprice+ \
+                    ((SELECT stockprice FROM stock WHERE stockname=$3) * $4) \
+                    WHERE portfolioid= \
                     (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
                     (SELECT userid FROM users WHERE username = $1) \
                     AND portfolioname=$2) \
                     AND stockid= \
-                    (SELECT stockid FROM stock WHERE stockname=$3)", [username, portfolioName, stockName, stockCount, totalStockAmount])
+                    (SELECT stockid FROM stock WHERE stockname=$3)", [username, portfolioName, stockName, stockCount])
                   .then(() => {
                     console.log(stockName, "was purchased (update)");
                     res.status(200).send();
@@ -536,7 +532,8 @@ app.post("/buy-stock", (req, res) => {
                     (SELECT userid FROM users WHERE username = $1) \
                     AND portfolioname=$2), \
                     (SELECT stockid FROM stock WHERE stockname=$3), \
-                    $4, $5)", [username, portfolioName, stockName, stockCount, totalStockAmount])
+                    $4, \
+                    ((SELECT stockprice FROM stock WHERE stockname=$3) * $4))", [username, portfolioName, stockName, stockCount])
                   .then(() => {
                     console.log(stockName, "was purchased (insert)");
                     res.status(200).send();
@@ -548,7 +545,7 @@ app.post("/buy-stock", (req, res) => {
                 }
               })
               .catch((error) => {
-                console.log("SQL Insert Into Portfolio_Stock:", error);
+                console.log("SQL Select From Portfolio_Stock:", error);
                 res.status(500).send();
               });
             } else {
@@ -557,7 +554,7 @@ app.post("/buy-stock", (req, res) => {
             }
           })
           .catch((error) => {
-            console.log("SQL Insert Into Portfolio_Stock:", error);
+            console.log("SQL Select From Portfolio:", error);
             res.status(500).send();
           });
         } else {
@@ -584,13 +581,11 @@ app.post("/buy-stock", (req, res) => {
 app.post("/sell-stock", (req, res) => {
   let stockName = req.body.stockName;
   let stockCount = req.body.stockCount;
-  let totalStockAmount = req.body.totalStockAmount;
   let username = req.body.username;
   let portfolioName = req.body.portfolioName;
 
   try {
     stockCount = parseInt(stockCount);
-    totalStockAmount = parseFloat(totalStockAmount);
   } catch (error) {
     console.log("Stock amount is not formatted correctly");
     return res.status(401).send();
@@ -598,17 +593,13 @@ app.post("/sell-stock", (req, res) => {
 
   if(!stockName ||
     !stockCount ||
-    !totalStockAmount ||
     !username ||
     !portfolioName ||
     typeof stockName !== "string" ||
     typeof stockCount !== "number" ||
-    typeof totalStockAmount !== "number" ||
     stockName.length < 1 ||
     stockName.length > 5 ||
     stockCount < 0 ||
-    totalStockAmount < 0 ||
-    totalStockAmount > 1000000000 ||
     username.length < 1 ||
     username.length > 20 ||
     portfolioName.length < 1 ||
@@ -652,12 +643,14 @@ app.post("/sell-stock", (req, res) => {
                     .then((result) => {
                       if (result.rows.length > 0) {
                         pool
-                        .query("UPDATE portfolio_stock SET stockamount=stockamount-$4, totalPrice=$5 WHERE portfolioid= \
+                        .query("UPDATE portfolio_stock SET stockamount=stockamount-$4, totalPrice=totalprice- \
+                          ((SELECT stockprice FROM stock WHERE stockname=$3)*$4) \
+                           WHERE portfolioid= \
                           (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
                           (SELECT userid FROM users WHERE username = $1) \
                           AND portfolioname=$2) \
                           AND stockid= \
-                          (SELECT stockid FROM stock WHERE stockName=$3)", [username, portfolioName, stockName, stockCount, totalStockAmount])
+                          (SELECT stockid FROM stock WHERE stockName=$3)", [username, portfolioName, stockName, stockCount])
                         .then(() => {
                           console.log(stockName, "was sold");
                           res.status(200).send();
@@ -681,7 +674,7 @@ app.post("/sell-stock", (req, res) => {
                   }
                 })
                 .catch((error) => {
-                  console.log("SQL Insert Into Portfolio_Stock:", error);
+                  console.log("SQL Select From Portfolio_Stock:", error);
                   res.status(500).send();
                 });
               } else {
@@ -690,7 +683,7 @@ app.post("/sell-stock", (req, res) => {
               }
             })
             .catch((error) => {
-              console.log("SQL Insert Into Portfolio_Stock:", error);
+              console.log("SQL Select From Portfolio:", error);
               res.status(500).send();
             });
           } else {
