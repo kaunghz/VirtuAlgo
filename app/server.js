@@ -497,7 +497,6 @@ app.post("/buy-stock", (req, res) => {
             (SELECT userid FROM users WHERE username=$1) \
             AND portfolioname=$2", [username, portfolioName])
           .then((result) => {
-            console.log(result);
             if (result.rows.length > 0) {
               pool
               .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid= \
@@ -532,8 +531,9 @@ app.post("/buy-stock", (req, res) => {
                     (SELECT userid FROM users WHERE username = $1) \
                     AND portfolioname=$2), \
                     (SELECT stockid FROM stock WHERE stockname=$3), \
-                    $4, \
-                    ((SELECT stockprice FROM stock WHERE stockname=$3) * $4))", [username, portfolioName, stockName, stockCount])
+                    $4, 100)", [username, portfolioName, stockName, stockCount])
+                    // TODO Figure out whats wrong w this
+                    // ((SELECT stockprice FROM stock WHERE stockname=$3) * $4))", [username, portfolioName, stockName, stockCount])
                   .then(() => {
                     console.log(stockName, "was purchased (insert)");
                     res.status(200).send();
