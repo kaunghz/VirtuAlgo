@@ -8,15 +8,16 @@ let balanceBlock = document.getElementById('balance');
 DATABASE INTEGRATION TASK 1
 Now the default is set 100k initial. We should fetch this value from the database.
 */
-let balance = 100000;
+let balance = 100000.00;
 let intervalID;
 // Dynamic Components
 let valueDisplay;
 let chartContainer;
 let canvas;
-let buyStockButton;
-let sellStockButton;
-let buySellEventAdded = false;
+let buyStockInput = document.getElementById("buy-stock-count");
+let buyStockButton = document.getElementById("buy-stock");
+let sellStockInput = document.getElementById("sell-stock-count");
+let sellStockButton = document.getElementById("sell-stock");
 // initial state
 balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
 
@@ -105,7 +106,7 @@ function makeChart(stocks, ticker) {
     }
     var labels = generateTimeLabels(stocks.length, 1);
 
-    var curStock = stocks[stocks.length - 1];
+    var curStock = stocks[0];
     var prices = []
     for (var i in stocks) {
         prices.push(stocks[i].ClosePrice);
@@ -134,7 +135,7 @@ function makeChart(stocks, ticker) {
         "Current": curStock.ClosePrice
     }
     displayCurrentStockPrice(curPricesDict);
-    makeBuySellButtons(ticker, curStock.ClosePrice);
+    displayBuySell();
 }
 
 function displayCurrentStockPrice(curPrices) {
@@ -157,118 +158,68 @@ function displayCurrentStockPrice(curPrices) {
     TODO: Make the stock count input box for buy and sell button
 */
 // Buy and Sell Skeleton
-function makeBuySellButtons(ticker, curPrice) {
-    // Destroy buttons if they exists
-    let buyStock = document.getElementById("buy-stock");
-    let sellStock = document.getElementById("sell-stock");
-    let buyStockCount = document.getElementById("buy-stock-coutn");
-    let sellStockCount = document.getElementById("sell-stock-count");
-
-    if (buyStock || sellStock || buyStockCount || sellStockCount) {
-        buySellEventAdded = false;
-        buyStock = null;
-        sellStock = null;
-        buyStockCount = null;
-        sellStockCount = null;
-    }
-
-    // Create buttons dynamically
-    // console.log(ticker);
-    // console.log(curPrice);
-
-    if (!buyStockButton) {
-        buyStockCount = document.createElement("input");
-        buyStockCount.id = "buy-stock-count";
-        buyStockCount.type = "number";
-        buyStockCount.placeholder = "Number of Shares to Buy...";
-        document.body.appendChild(buyStockCount);
-        
-        buyStockButton = document.createElement("button");
-        buyStockButton.textContent = "Buy Stock";
-        buyStockButton.id = "buy-stock";
-        document.body.appendChild(buyStockButton);
-        
-
-
-        document.body.appendChild(document.createElement("br"));
-    }
-    if (!sellStockButton) {
-        sellStockCount = document.createElement("input");
-        sellStockCount.id = "sell-stock-count";
-        sellStockCount.type = "number";
-        sellStockCount.placeholder = "Number of Shares to Sell...";
-        document.body.appendChild(sellStockCount);
-
-        sellStockButton = document.createElement("button");
-        sellStockButton.textContent = "Sell Stock";
-        buyStockButton.id = "sell-stock";
-        document.body.appendChild(sellStockButton);
-
-
-
-        document.body.appendChild(document.createElement("br"));
-    }
-
-    // This below code attaches event listeners to the buy and sell buttons after the chart is created.
-    
-    if (!buySellEventAdded) {
-        buySellEventAdded = true;
-        buyStockButton.addEventListener("click", buyHandler);
-        sellStockButton.addEventListener("click", sellHandler);
-    }
-
-    function buyHandler() {
-        let buyStockCountValue = document.getElementById("buy-stock-count").value;
-
-        if(buyStockCountValue === "") {
-            alert("No shares entered to buy.");
-            return;
-        }
-
-        let buyStockCount = parseInt(buyStockCountValue);
-
-        if(isNaN(buyStockCount) || buyStockCount <= 0) {
-            alert("Please enter a valid number of shares to buy.");
-            return;
-        }
-
-        buy(ticker, curPrice, buyStockCount);
-    }
-    function sellHandler() {
-        let totalBoughtPrice;
-        let totalSharesOwned;
-        
-        // Note that the username and portfolioName are hard-coded right now
-        // Need to fetch how many stocks the user owns and the total price of the stocks
-        // Can potentially move this fetch into the sellHandler() function then pass in totalBoughtPrice and totalShares into this sell() function.
-        fetch(`/get-stock?stockName=${ticker}&username=test&portfolioName=port1`).then((response) => {
-            return response.json();
-        }).then((result) => {
-            console.log(result);
-            totalBoughtPrice = result.rows[0].totalPrice;
-            totalSharesOwned = result.rows[0].stockAmount;
-        }).catch((error) => {
-            console.log(error);
-            return;
-        }) 
-
-        let sellStockCountValue = document.getElementById("sell-stock-count").value;
-
-        if(sellStockCountValue === "") {
-            alert("No shares entered to sell.");
-            return;
-        }
-
-        let sellStockCount = parseInt(sellStockCountValue);
-
-        if(isNaN(sellStockCount) || sellStockCount <= 0 || sellStockCount > totalShares) {
-            alert("Please enter a valid number of shares to sell.");
-            return;
-        }
-        sell(ticker, curPrice, sellStockCount, totalBoughtPrice, totalSharesOwned);
-    }
+function displayBuySell() {
+    buyStockInput.style.display = "block"; 
+    buyStockButton.style.display = "block"; 
+    sellStockInput.style.display = "block"; 
+    sellStockButton.style.display = "block"; 
 }
 
+buyStockButton.addEventListener("click", buyHandler);
+sellStockButton.addEventListener("click", sellHandler);
+
+function buyHandler() {
+    let buyStockCountValue = document.getElementById("buy-stock-count").value;
+    let ticker = stockSearch.value;
+
+    if(buyStockCountValue === "") {
+        alert("No shares entered to buy.");
+        return;
+    }
+
+    let buyStockCount = parseInt(buyStockCountValue);
+
+    if(isNaN(buyStockCount) || buyStockCount <= 0) {
+        alert("Please enter a valid number of shares to buy.");
+        return;
+    }
+
+    buy(ticker, buyStockCount);
+}
+
+function sellHandler() {
+    let totalBoughtPrice;
+    let totalSharesOwned;
+    
+    // Note that the username and portfolioName are hard-coded right now
+    // Need to fetch how many stocks the user owns and the total price of the stocks
+    // Can potentially move this fetch into the sellHandler() function then pass in totalBoughtPrice and totalShares into this sell() function.
+    fetch(`/get-stock?stockName=${ticker}&username=test&portfolioName=port1`).then((response) => {
+        return response.json();
+    }).then((result) => {
+        console.log(result);
+        totalBoughtPrice = result.rows[0].totalPrice;
+        totalSharesOwned = result.rows[0].stockAmount;
+    }).catch((error) => {
+        console.log(error);
+        return;
+    }) 
+
+    let sellStockCountValue = document.getElementById("sell-stock-count").value;
+
+    if(sellStockCountValue === "") {
+        alert("No shares entered to sell.");
+        return;
+    }
+
+    let sellStockCount = parseInt(sellStockCountValue);
+
+    if(isNaN(sellStockCount) || sellStockCount <= 0 || sellStockCount > totalShares) {
+        alert("Please enter a valid number of shares to sell.");
+        return;
+    }
+    sell(ticker, curPrice, sellStockCount, totalBoughtPrice, totalSharesOwned);
+}
 
 /*
     TODO: Integrate buy and sell to database
@@ -292,8 +243,10 @@ For sell:
 */
 
 // buy and sell backend
-function buy(ticker, curPrice, numShares) {
-    balance -= (curPrice * numShares);
+function buy(ticker, numShares) {
+    const curPrice = getClosePrice(ticker);
+
+    balance -= curPrice * parseFloat(numShares);
 
     // Updates the stock details for current user's portfolio
     //  - Essentially updates "Portfolio_Stock" table
@@ -365,3 +318,22 @@ function sell(ticker, curPrice, numShares, totalStockPrice, totalSharesOwned) {
         console.log(error);
     });
 };
+
+function getClosePrice(ticker) {
+    fetch(
+        `/alpaca/market/${ticker}`
+    ).then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    }).then((response) => {
+        var result = [];
+        for (var i in response) {
+            result.push(response[i]);
+        }
+        return result[0].ClosePrice;
+    }).catch((error) => {
+        console.log("Error Fetching stock data: ", error);
+    });
+}
