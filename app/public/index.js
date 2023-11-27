@@ -190,35 +190,41 @@ function buyHandler() {
 function sellHandler() {
     let totalBoughtPrice;
     let totalSharesOwned;
+    let ticker = stockSearch.value;
     
     // Note that the username and portfolioName are hard-coded right now
     // Need to fetch how many stocks the user owns and the total price of the stocks
     // Can potentially move this fetch into the sellHandler() function then pass in totalBoughtPrice and totalShares into this sell() function.
-    fetch(`/get-stock?stockName=${ticker}&username=test&portfolioName=port1`).then((response) => {
+    fetch(`/get-stock?stockName=${ticker}&portfolioName=port1`).then((response) => {
         return response.json();
     }).then((result) => {
-        console.log(result);
-        totalBoughtPrice = result.rows[0].totalPrice;
-        totalSharesOwned = result.rows[0].stockAmount;
+        console.log(result[0]);
+        totalBoughtPrice = result[0].totalprice;
+        totalSharesOwned = result[0].stockamount;
+
+        let sellStockCountValue = document.getElementById("sell-stock-count").value;
+
+        if(sellStockCountValue === "") {
+            alert("No shares entered to sell.");
+            return;
+        }
+    
+        let sellStockCount = parseInt(sellStockCountValue);
+    
+        if(isNaN(sellStockCount) || sellStockCount <= 0 || sellStockCount > totalSharesOwned) {
+            alert("Please enter a valid number of shares to sell.");
+            return;
+        }
+    
+        console.log("Total Value of Shares:", totalBoughtPrice);
+        console.log("Shares Owned:", totalSharesOwned);
+        sell(ticker, sellStockCount, totalBoughtPrice, totalSharesOwned);
     }).catch((error) => {
         console.log(error);
         return;
     }) 
 
-    let sellStockCountValue = document.getElementById("sell-stock-count").value;
 
-    if(sellStockCountValue === "") {
-        alert("No shares entered to sell.");
-        return;
-    }
-
-    let sellStockCount = parseInt(sellStockCountValue);
-
-    if(isNaN(sellStockCount) || sellStockCount <= 0 || sellStockCount > totalShares) {
-        alert("Please enter a valid number of shares to sell.");
-        return;
-    }
-    sell(ticker, curPrice, sellStockCount, totalBoughtPrice, totalSharesOwned);
 }
 
 /*
@@ -281,18 +287,22 @@ async function buy(ticker, numShares) {
     });
 };
 
-function sell(ticker, curPrice, numShares, totalStockPrice, totalSharesOwned) {
+async function sell(ticker, numShares, totalStockPrice, totalSharesOwned) {
+    const curPrice = await getClosePrice(ticker);
+
     // Need to calculate the stock amount after selling stock
     // stockCount does not need to be calculated as the POST request performs subtraction of shares already
-    let originalBoughtStockPrice = totalStockPrice / totalSharesOwned; // In the provided example, this would be 100 / 4 = $25 each
-    let newTotalStockPrice = (totalShares - numShares) * originalBoughtStockPrice;
+    let originalBoughtStockPrice = (parseFloat(totalStockPrice) / parseFloat(totalSharesOwned)).toFixed(2); // In the provided example, this would be 100 / 4 = $25 each
+    console.log(originalBoughtStockPrice);
+    let newTotalStockPrice = ((totalSharesOwned - numShares) * originalBoughtStockPrice).toFixed(2);
+    console.log(newTotalStockPrice);
 
     fetch("/sell-stock", {
         method: "POST",
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: newTotalStockPrice, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: newTotalStockPrice, portfolioName: "port1"}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {

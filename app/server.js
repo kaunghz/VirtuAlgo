@@ -391,64 +391,49 @@ app.post("/update-stock", (req, res) => {
 // Returns the number of shares of a current stock a user owns AND
 // the total price of those stocks
 app.get("/get-stock", (req, res) => {
+  let userID = req.session.user_id;
   let stockName = req.query.stockName;
-  let username = req.query.userID;
   let portfolioName = req.query.portfolioName;
 
   pool
-  .query("SELECT stockid FROM stock WHERE stockname = $1", [stockName])
+  .query("SELECT * FROM users WHERE userid = $1", [userID])
   .then((result) => {
     if (result.rows.length > 0) {
       pool
-      .query("SELECT userid FROM users WHERE username = $1", [username])
+      .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+      AND portfolioname=$2", [userID, portfolioName])
       .then((result) => {
         if (result.rows.length > 0) {
           pool
-          .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
-          (SELECT userid FROM users WHERE username=$1) \
-          AND portfolioname=$2", [username, portfolioName])
+          .query("SELECT stockamount, totalprice FROM portfolio_stock WHERE portfolioid= \
+            (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+            AND portfolioname=$2) \
+            AND stockname=$3", [userID, portfolioName, stockName])
           .then((result) => {
-            if (result.rows.length > 0) {
-              pool
-              .query("SELECT stockamount, totalprice FROM portfolio_stock WHERE portfolioid= \
-                (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
-                (SELECT userid FROM users WHERE username=$1) \
-                AND portfolioname=$2) \
-                AND stockId= \
-                (SELECT stockid FROM stock WHERE stockname=$3)", [username, portfolioName, stockName])
-              .then((result) => {
-                console.log(result.rows);
-                res.status(200).send(result);
-              })
-              .catch((error) => {
-                console.log("SQL SELECT from portfolio_stock:", error);
-                res.status(500).send();
-              });
-            } else {
-              console.log(portfolioName, "fails to exist");
-              res.status(401).send();
-            }
+            let rows = result.rows;
+            console.log(rows);
+            res.status(200).send(rows);
           })
           .catch((error) => {
-            console.log("SQL SELECT from Portfolio:", error);
+            console.log("SQL SELECT from portfolio_stock:", error);
             res.status(500).send();
           });
         } else {
-          console.log(username, "does not exist");
+          console.log(portfolioName, "fails to exist");
           res.status(401).send();
         }
       })
       .catch((error) => {
-        console.log("SQL Select From users:", error);
+        console.log("SQL SELECT from Portfolio:", error);
         res.status(500).send();
       });
     } else {
-      console.log(stockName, "does not exists");
+      console.log(userID, "does not exist");
       res.status(401).send();
     }
   })
   .catch((error) => {
-    console.log("SQL Select From Stock:", error);
+    console.log("SQL Select From users:", error);
     res.status(500).send();
   });
 });
@@ -474,6 +459,7 @@ app.post("/buy-stock", (req, res) => {
     typeof stockName !== "string" ||
     typeof portfolioName !== "string" ||
     typeof stockCount !== "number" ||
+    typeof totalBuyStockAmountValue !== "number" ||
     stockName.length < 1 ||
     stockName.length > 5 ||
     stockCount < 0 ||
@@ -544,107 +530,91 @@ app.post("/buy-stock", (req, res) => {
           res.status(500).send();
         });
       } else {
-        console.log(username, "does not exists");
+        console.log(userID, "does not exists");
         res.status(401).send();
       }
+    }).catch((error) => {
+      console.log("SQL Select From Users:", error);
+      res.status(500).send();
     })
   } 
 );
 
 
 app.post("/sell-stock", (req, res) => {
+  let userID = req.session.user_id;
   let stockName = req.body.stockName;
-  let stockCount = req.body.stockCount;
-  let username = req.body.username;
+  let stockSellCount = req.body.stockCount;
   let portfolioName = req.body.portfolioName;
+  let newTotalStockAmountValue = req.body.totalStockAmount;
 
   try {
-    stockCount = parseInt(stockCount);
+    stockSellCount = parseInt(stockSellCount);
+    newTotalStockAmountValue = parseFloat(newTotalStockAmountValue);
   } catch (error) {
-    console.log("Stock amount is not formatted correctly");
+    console.log("Stock Count or Stock Amount is not formatted correctly");
     return res.status(401).send();
   }
 
   if(!stockName ||
-    !stockCount ||
-    !username ||
+    !stockSellCount ||
     !portfolioName ||
     typeof stockName !== "string" ||
-    typeof stockCount !== "number" ||
+    typeof portfolioName !== "string" ||
+    typeof stockSellCount !== "number" ||
+    typeof newTotalStockAmountValue !== "number" ||
     stockName.length < 1 ||
     stockName.length > 5 ||
-    stockCount < 0 ||
-    username.length < 1 ||
-    username.length > 20 ||
+    stockSellCount < 0 ||
+    newTotalStockAmountValue < 0 ||
     portfolioName.length < 1 ||
     portfolioName.length > 20)
     {
-      console.log("Invalid stock or amount or username or portfolio name.");
+      console.log("Invalid stock or count or username or portfolio name.");
       return res.status(401).send();
     }
 
     pool
-    .query("SELECT stockid FROM stock WHERE stockname = $1", [stockName])
+    .query("SELECT * FROM users WHERE userid = $1", [userID])
     .then((result) => {
       if (result.rows.length > 0) {
         pool
-        .query("SELECT userid FROM users WHERE username = $1", [username])
+        .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= $1 \
+          AND portfolioname=$2", [userID, portfolioName])
         .then((result) => {
           if (result.rows.length > 0) {
             pool
-            .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
-              (SELECT userid FROM users WHERE username=$1) \
-              AND portfolioname=$2", [username, portfolioName])
+            .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid= \
+              (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+              AND portfolioname=$2) \
+              AND stockname=$3", [userID, portfolioName, stockName])
             .then((result) => {
               if (result.rows.length > 0) {
                 pool
-                .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid= \
-                  (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
-                  (SELECT userid FROM users WHERE username=$1) \
+                .query("SELECT stockamount FROM portfolio_stock WHERE portfolioid= \
+                  (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
                   AND portfolioname=$2) \
-                  AND stockId= \
-                  (SELECT stockid FROM stock WHERE stockname=$3)", [username, portfolioName, stockName])
+                  AND stockname=$3 \
+                  AND stockamount>$4", [userID, portfolioName, stockName, stockSellCount])
                 .then((result) => {
                   if (result.rows.length > 0) {
                     pool
-                    .query("SELECT stockamount FROM portfolio_stock WHERE portfolioid= \
-                      (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
-                      (SELECT userid FROM users WHERE username=$1) \
+                    .query("UPDATE portfolio_stock SET stockamount=stockamount-$4, totalprice=$5 \
+                        WHERE portfolioid= \
+                      (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
                       AND portfolioname=$2) \
-                      AND stockId= \
-                      (SELECT stockid FROM stock WHERE stockname=$3) \
-                      AND stockamount>$4", [username, portfolioName, stockName, stockCount])
-                    .then((result) => {
-                      if (result.rows.length > 0) {
-                        pool
-                        .query("UPDATE portfolio_stock SET stockamount=stockamount-$4, totalPrice=totalprice- \
-                          ((SELECT stockprice FROM stock WHERE stockname=$3)*$4) \
-                           WHERE portfolioid= \
-                          (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= \
-                          (SELECT userid FROM users WHERE username = $1) \
-                          AND portfolioname=$2) \
-                          AND stockid= \
-                          (SELECT stockid FROM stock WHERE stockName=$3)", [username, portfolioName, stockName, stockCount])
-                        .then(() => {
-                          console.log(stockName, "was sold");
-                          res.status(200).send();
-                        })
-                        .catch((error) => {
-                          console.log("SQL Update Portfolio_Stock:", error);
-                          res.status(500).send();
-                        });
-                      } else {
-                        console.log("Amount must be less than what the user owns.");
-                        return res.status(401).send();
-                      }
+                      AND stockname=$3", [userID, portfolioName, stockName, stockSellCount, newTotalStockAmountValue])
+                    .then(() => {
+                      console.log(stockName, "was sold");
+                      res.status(200).send();
                     })
                     .catch((error) => {
-                      console.log("SQL Select From Portfolio_Stock:", error);
+                      console.log("SQL Update Portfolio_Stock:", error);
                       res.status(500).send();
                     });
                   } else {
-                    console.log(portfolioName, "does not own any", stockName);
-                    res.status(401).send();
+                    console.log("Amount must be less than what the user owns.");
+                    return res.status(401).send();
                   }
                 })
                 .catch((error) => {
@@ -652,32 +622,31 @@ app.post("/sell-stock", (req, res) => {
                   res.status(500).send();
                 });
               } else {
-                console.log(portfolioName, "does not exists");
+                console.log(portfolioName, "does not own any", stockName);
                 res.status(401).send();
               }
             })
             .catch((error) => {
-              console.log("SQL Select From Portfolio:", error);
+              console.log("SQL Select From Portfolio_Stock:", error);
               res.status(500).send();
             });
           } else {
-            console.log(username, "does not exists");
+            console.log(portfolioName, "does not exists");
             res.status(401).send();
           }
         })
         .catch((error) => {
-          console.log("SQL Select From Stock:", error);
+          console.log("SQL Select From Portfolio:", error);
           res.status(500).send();
         });
       } else {
-        console.log(stockName, "does not exists");
+        console.log(username, "does not exists");
         res.status(401).send();
       }
-    })
-    .catch((error) => {
-      console.log("SQL Select From Stock:", error);
+    }).catch((error) => {
+      console.log("SQL Select from Users:", error);
       res.status(500).send();
-    });
+    })
   });
 
 
