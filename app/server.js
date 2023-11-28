@@ -24,6 +24,7 @@ app.use(express.static("login"));
 app.use(express.static("public"));
 // app.use(express.static("login"));
 app.use(express.static("algotrade"));
+app.use(express.static("portfolio"));
 
 // Use session middleware
 app.use(session({
@@ -197,113 +198,92 @@ app.get("/get-algorithms", (req, res) => {
 
 
 app.post("/add-portfolio", (req, res) => {
-  let portfolioName = req.body.name;
-  let username = req.body.username;
+  let portfolioName = req.body.portfolioName;
+
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  let userID = req.session.user_id;
 
   if(!portfolioName ||
-    !username ||
     typeof portfolioName !== "string" ||
-    typeof username !== "string" ||
     portfolioName.length < 1 ||
-    portfolioName.length > 20 ||
-    username.length < 1 ||
-    username.length > 20)
+    portfolioName.length > 20)
     {
-      console.log("Invalid username or portfolio name");
+      console.log("Invalid portfolio name");
       return res.status(401).send();
     }
 
   pool
-  .query("SELECT userid FROM users WHERE username = $1", [username])
+  .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2", [userID, portfolioName])
   .then((result) => {
-    let userid = result.rows[0].userid;
     if (result.rows.length > 0) {
-      pool
-      .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=($1) AND portfolioname=($2)", [result.rows[0].userid, portfolioName])
-      .then((result) => {
-        if (result.rows.length > 0) {
-          console.log(portfolioName, "already exists");
-          res.status(401).send();
-        } else {
-          pool
-          .query("INSERT INTO portfolio (portfolioName, userId, balance) VALUES ($1, $2, $3)", [portfolioName, userid, 10000.00])
-          .then(() => {
-            console.log(portfolioName, "was added");
-            res.status(200).send();
-          })
-          .catch((error) => {
-            console.log("SQL Insert Into Portfolio:", error);
-            res.status(500).send();
-          });
-        }
-      })
-    } else {
-      console.log(username, "does not exist");
+      console.log(portfolioName, "already exists");
       res.status(401).send();
+    } else {
+      pool
+      .query("INSERT INTO portfolio (portfolioName, userId, balance) VALUES ($1, $2, $3)", [portfolioName, userID, 10000.00])
+      .then(() => {
+        console.log(portfolioName, "was added");
+        res.status(200).send();
+      })
+      .catch((error) => {
+        console.log("SQL Insert Into Portfolio:", error);
+        res.status(500).send();
+      });
     }
   })
-  .catch((error) => {
-    console.log("SQL Select From Users:", error);
-    res.status(500).send();
-  });
 });
 
 
 app.post("/update-portfolio", (req, res) => {
-  let portfolioName = req.body.name;
-  let username = req.body.username;
-  let balance = req.body.balance;
+  let portfolioName = req.body.portfolioName;
+  let balance = parseFloat(req.body.balance);
+
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  let userID = req.session.user_id;
 
   if(!portfolioName ||
-    !username ||
     typeof portfolioName !== "string" ||
-    typeof username !== "string" ||
     typeof balance !== "number" ||
     portfolioName.length < 1 ||
     portfolioName.length > 20 ||
-    username.length < 1 ||
-    username.length > 20 ||
     balance < 0 ||
     balance > 10000000.00)
     {
-      console.log("Invalid username or portfolio name");
+      console.log("Invalid portfolio name or balance");
       return res.status(401).send();
     }
 
   pool
-  .query("SELECT userid FROM users WHERE username = $1", [username])
+  .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2", [userID, portfolioName])
   .then((result) => {
     if (result.rows.length > 0) {
       pool
-      .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=($1) AND portfolioname=($2)", [result.rows[0].userid, portfolioName])
+      .query("UPDATE portfolio SET balance=$3 WHERE portfolioid=( \
+        SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2)", 
+        [userID, portfolioName, balance])
       .then(() => {
-        if (result.rows.length > 0) {
-          pool
-          .query("UPDATE portfolio SET balance=($2) WHERE portfolioid=($1)", [result.rows[0].portfolioid, balance])
-          .then(() => {
-            console.log(portfolioName, "was updated");
-            res.status(200).send();
-          })
-          .catch((error) => {
-            console.log("SQL Update Portfolio:", error);
-            res.status(500).send();
-          });
-        } else {
-          console.log(portfolioName, "already exists");
-          res.status(401).send();
-        }
+        console.log(portfolioName, "was updated");
+        res.status(200).send();
       })
       .catch((error) => {
         console.log("SQL Update Portfolio:", error);
         res.status(500).send();
       });
     } else {
-      console.log(portfolioName, "already exists");
+      console.log(portfolioName, "does not exists");
       res.status(401).send();
     }
   })
   .catch((error) => {
-    console.log("SQL Select From Users:", error);
+    console.log("SQL Update Portfolio:", error);
     res.status(500).send();
   });
 });
@@ -408,224 +388,265 @@ app.post("/update-stock", (req, res) => {
   });
 });
 
-app.post("/buy-stock", (req, res) => {
-  let stockName = req.body.stockName;
-  let stockAmount = req.body.amount;
-  let username = req.body.username;
-  let portfolioName = req.body.portfolioName;
-
-  try {
-    stockAmount = parseInt(stockAmount);
-  } catch (error) {
-    console.log("Stock amount is not formatted correctly");
-    return res.status(401).send();
-  }
-
-  if(!stockName ||
-    !stockAmount ||
-    !username ||
-    !portfolioName ||
-    typeof stockName !== "string" ||
-    typeof stockAmount !== "number" ||
-    stockName.length < 1 ||
-    stockName.length > 5 ||
-    stockAmount < 0 ||
-    stockAmount > 1000000000 ||
-    username.length < 1 ||
-    username.length > 20 ||
-    portfolioName.length < 1 ||
-    portfolioName.length > 20)
-    {
-      console.log("Invalid stock or amount or username or portfolio name.");
-      return res.status(401).send();
-    }
+// Returns the number of shares of a current stock a user owns AND
+// the total price of those stocks
+app.get("/get-stock", (req, res) => {
+  let userID = req.session.user_id;
+  let stockName = req.query.stockName;
+  let portfolioName = req.query.portfolioName;
 
   pool
-  .query("SELECT stockid FROM stock WHERE stockName = $1", [stockName])
+  .query("SELECT * FROM users WHERE userid = $1", [userID])
   .then((result) => {
     if (result.rows.length > 0) {
-      let stockId = result.rows[0].stockId;
       pool
-      .query("SELECT userid FROM users WHERE username = $1", [username])
+      .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+      AND portfolioname=$2", [userID, portfolioName])
       .then((result) => {
         if (result.rows.length > 0) {
           pool
-          .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=($1) AND portfolioname=($2)", [result.rows[0].userid, portfolioName])
-          .then(() => {
-            let portfolioId = result.rows[0].portfolioId;
-            if (result.rows.length > 0) {
-              pool
-              .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid=($1) AND stockId=($2)", [portfolioId, stockId])
-              .then(() => {
-                console.log(result);
-                if (result.rows.length > 0) {
-                  pool
-                  .query("UPDATE portfolio_stock SET stockAmount=stockAmount+($2) WHERE portfolioid=($1) AND stockid=($3)", [portfolioId, stockAmount, stockId])
-                  .then(() => {
-                    console.log(stockName, "was purchased (update)");
-                    res.status(200).send();
-                  })
-                  .catch((error) => {
-                    console.log("SQL Update Portfolio_Stock:", error);
-                    res.status(500).send();
-                  });
-                } else {
-                  pool
-                  .query("INSERT INTO portfolio_stock (portfolioId, stockId, stockAmount) VALUES ($1, $2, $3)", [portfolioId, stockId, stockAmount])
-                  .then(() => {
-                    console.log(stockName, "was purchased (insert)");
-                    res.status(200).send();
-                  })
-                  .catch((error) => {
-                    console.log("SQL Insert Into Portfolio_Stock:", error);
-                    res.status(500).send();
-                  });
-                }
-              })
-              .catch((error) => {
-                console.log("SQL Insert Into Portfolio_Stock:", error);
-                res.status(500).send();
-              });
-            } else {
-              console.log(portfolioName, "already exists");
-              res.status(401).send();
-            }
+          .query("SELECT stockamount, totalprice FROM portfolio_stock WHERE portfolioid= \
+            (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+            AND portfolioname=$2) \
+            AND stockname=$3", [userID, portfolioName, stockName])
+          .then((result) => {
+            let rows = result.rows;
+            console.log(rows);
+            res.status(200).send(rows);
           })
           .catch((error) => {
-            console.log("SQL Insert Into Portfolio_Stock:", error);
+            console.log("SQL SELECT from portfolio_stock:", error);
             res.status(500).send();
           });
         } else {
-          console.log(portfolioName, "already exists");
+          console.log(portfolioName, "fails to exist");
           res.status(401).send();
         }
       })
       .catch((error) => {
-        console.log("SQL Select From Stock:", error);
+        console.log("SQL SELECT from Portfolio:", error);
         res.status(500).send();
       });
     } else {
-      console.log(stockName, "does not exists");
+      console.log(userID, "does not exist");
       res.status(401).send();
     }
   })
   .catch((error) => {
-    console.log("SQL Select From Stock:", error);
+    console.log("SQL Select From users:", error);
     res.status(500).send();
   });
 });
 
-
-app.post("/sell-stock", (req, res) => {
+app.post("/buy-stock", (req, res) => {
+  let userID = req.session.user_id;
   let stockName = req.body.stockName;
-  let stockAmount = req.body.amount;
-  let username = req.body.username;
+  let stockCount = req.body.stockCount;
   let portfolioName = req.body.portfolioName;
+  let totalBuyStockAmountValue = req.body.totalStockAmount;
 
   try {
-    stockAmount = parseInt(stockAmount);
+    stockCount = parseInt(stockCount);
+    totalBuyStockAmountValue = parseFloat(totalBuyStockAmountValue);
   } catch (error) {
-    console.log("Stock amount is not formatted correctly");
+    console.log("Stock Count or Stock Amount is not formatted correctly");
     return res.status(401).send();
   }
 
   if(!stockName ||
-    !stockAmount ||
-    !username ||
+    !stockCount ||
     !portfolioName ||
     typeof stockName !== "string" ||
-    typeof stockAmount !== "number" ||
+    typeof portfolioName !== "string" ||
+    typeof stockCount !== "number" ||
+    typeof totalBuyStockAmountValue !== "number" ||
     stockName.length < 1 ||
     stockName.length > 5 ||
-    stockAmount < 0 ||
-    stockAmount > 1000000000 ||
-    username.length < 1 ||
-    username.length > 20 ||
+    stockCount < 0 ||
+    totalBuyStockAmountValue < 0 ||
     portfolioName.length < 1 ||
     portfolioName.length > 20)
     {
-      console.log("Invalid stock or amount or username or portfolio name.");
+      console.log("Invalid stock or count or username or portfolio name.");
       return res.status(401).send();
     }
 
     pool
-    .query("SELECT stockid FROM stock WHERE stockName = $1", [stockName])
+    .query("SELECT * FROM users WHERE userid=$1", [userID])
     .then((result) => {
       if (result.rows.length > 0) {
-        let stockId = result.rows[0].stockId;
         pool
-        .query("SELECT userid FROM users WHERE username = $1", [username])
+        .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2", [userID, portfolioName])
         .then((result) => {
           if (result.rows.length > 0) {
             pool
-            .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=($1) AND portfolioname=($2)", [result.rows[0].userid, portfolioName])
-            .then(() => {
-              let portfolioId = result.rows[0].portfolioId;
+            .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid= \
+              (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2) AND stockName= $3", [userID, portfolioName, stockName])
+            .then((result) => {
               if (result.rows.length > 0) {
                 pool
-                .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid=($1) AND stockId=($2)", [portfolioId, stockId])
+                .query("UPDATE portfolio_stock SET stockAmount=stockAmount+$3, totalprice=totalprice+$4 \
+                  WHERE portfolioid= \
+                  (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+                  AND portfolioname=$2) \
+                  AND stockName = $5", [userID, portfolioName, stockCount, totalBuyStockAmountValue, stockName])
                 .then(() => {
-                  console.log(result);
-                  if (result.rows.length > 0) {
-                    pool
-                    .query("SELECT stockAmount FROM portfolio_stock WHERE portfolioid=($1) AND stockId=($2)", [portfolioId, stockId])
-                    .then(() => {
-                      if (result.rows.length > 0) {
-                        pool
-                        .query("UPDATE portfolio_stock SET stockAmount=stockAmount-($2) WHERE portfolioid=($1) AND stockid=($3)", [portfolioId, stockAmount, stockId])
-                        .then(() => {
-                          console.log(stockName, "was sold");
-                          res.status(200).send();
-                        })
-                        .catch((error) => {
-                          console.log("SQL Update Portfolio_Stock:", error);
-                          res.status(500).send();
-                        });
-                      } else {
-                        console.log("Amount must be less than what the user owns.");
-                        return res.status(401).send();
-                      }
-                    })
-                    .catch((error) => {
-                      console.log("SQL Select From Portfolio_Stock:", error);
-                      res.status(500).send();
-                    });
-                  } else {
-                    console.log(portfolioName, "does not own any", stockName);
-                    res.status(401).send();
-                  }
+                  console.log(stockName, "was purchased (update)");
+                  res.status(200).send();
+                })
+                .catch((error) => {
+                  console.log("SQL Update Portfolio_Stock:", error);
+                  res.status(500).send();
+                });
+              } else {
+                pool
+                .query("INSERT INTO portfolio_stock (portfolioId, stockName, stockamount, totalPrice) \
+                VALUES ( \
+                  (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                   $3, \
+                  $4, \
+                  $5)", [userID, portfolioName, stockName, stockCount, totalBuyStockAmountValue])
+                .then(() => {
+                  console.log(stockName, "was purchased (insert)");
+                  res.status(200).send();
                 })
                 .catch((error) => {
                   console.log("SQL Insert Into Portfolio_Stock:", error);
                   res.status(500).send();
                 });
-              } else {
-                console.log(portfolioName, "already exists");
-                res.status(401).send();
               }
             })
             .catch((error) => {
-              console.log("SQL Insert Into Portfolio_Stock:", error);
+              console.log("SQL Select From Portfolio_Stock:", error);
               res.status(500).send();
             });
           } else {
-            console.log(portfolioName, "already exists");
+            console.log(portfolioName, "does not exists");
             res.status(401).send();
           }
         })
         .catch((error) => {
-          console.log("SQL Select From Stock:", error);
+          console.log("SQL Select From Portfolio:", error);
           res.status(500).send();
         });
       } else {
-        console.log(stockName, "does not exists");
+        console.log(userID, "does not exists");
         res.status(401).send();
       }
-    })
-    .catch((error) => {
-      console.log("SQL Select From Stock:", error);
+    }).catch((error) => {
+      console.log("SQL Select From Users:", error);
       res.status(500).send();
-    });
+    })
+  } 
+);
+
+
+app.post("/sell-stock", (req, res) => {
+  let userID = req.session.user_id;
+  let stockName = req.body.stockName;
+  let stockSellCount = req.body.stockCount;
+  let portfolioName = req.body.portfolioName;
+  let newTotalStockAmountValue = req.body.totalStockAmount;
+
+  try {
+    stockSellCount = parseInt(stockSellCount);
+    newTotalStockAmountValue = parseFloat(newTotalStockAmountValue);
+  } catch (error) {
+    console.log("Stock Count or Stock Amount is not formatted correctly");
+    return res.status(401).send();
+  }
+
+  if(!stockName ||
+    !stockSellCount ||
+    !portfolioName ||
+    typeof stockName !== "string" ||
+    typeof portfolioName !== "string" ||
+    typeof stockSellCount !== "number" ||
+    typeof newTotalStockAmountValue !== "number" ||
+    stockName.length < 1 ||
+    stockName.length > 5 ||
+    stockSellCount < 0 ||
+    newTotalStockAmountValue < 0 ||
+    portfolioName.length < 1 ||
+    portfolioName.length > 20)
+    {
+      console.log("Invalid stock or count or username or portfolio name.");
+      return res.status(401).send();
+    }
+
+    pool
+    .query("SELECT * FROM users WHERE userid = $1", [userID])
+    .then((result) => {
+      if (result.rows.length > 0) {
+        pool
+        .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid= $1 \
+          AND portfolioname=$2", [userID, portfolioName])
+        .then((result) => {
+          if (result.rows.length > 0) {
+            pool
+            .query("SELECT portfolioid FROM portfolio_stock WHERE portfolioid= \
+              (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+              AND portfolioname=$2) \
+              AND stockname=$3", [userID, portfolioName, stockName])
+            .then((result) => {
+              if (result.rows.length > 0) {
+                pool
+                .query("SELECT stockamount FROM portfolio_stock WHERE portfolioid= \
+                  (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+                  AND portfolioname=$2) \
+                  AND stockname=$3 \
+                  AND stockamount>=$4", [userID, portfolioName, stockName, stockSellCount])
+                .then((result) => {
+                  if (result.rows.length > 0) {
+                    pool
+                    .query("UPDATE portfolio_stock SET stockamount=stockamount-$4, totalprice=$5 \
+                        WHERE portfolioid= \
+                      (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+                      AND portfolioname=$2) \
+                      AND stockname=$3", [userID, portfolioName, stockName, stockSellCount, newTotalStockAmountValue])
+                    .then(() => {
+                      console.log(stockName, "was sold");
+                      res.status(200).send();
+                    })
+                    .catch((error) => {
+                      console.log("SQL Update Portfolio_Stock:", error);
+                      res.status(500).send();
+                    });
+                  } else {
+                    console.log("Amount must be less than what the user owns.");
+                    return res.status(401).send();
+                  }
+                })
+                .catch((error) => {
+                  console.log("SQL Select From Portfolio_Stock:", error);
+                  res.status(500).send();
+                });
+              } else {
+                console.log(portfolioName, "does not own any", stockName);
+                res.status(401).send();
+              }
+            })
+            .catch((error) => {
+              console.log("SQL Select From Portfolio_Stock:", error);
+              res.status(500).send();
+            });
+          } else {
+            console.log(portfolioName, "does not exists");
+            res.status(401).send();
+          }
+        })
+        .catch((error) => {
+          console.log("SQL Select From Portfolio:", error);
+          res.status(500).send();
+        });
+      } else {
+        console.log(username, "does not exists");
+        res.status(401).send();
+      }
+    }).catch((error) => {
+      console.log("SQL Select from Users:", error);
+      res.status(500).send();
+    })
   });
 
 
@@ -655,7 +676,7 @@ app.get('/alpaca/market/:ticker', async (req, res) => {
   for await (let b of bars) {
     got.push(b);
   }
-  console.log(got);
+  //console.log(got);
   res.json(got);
 });
 
