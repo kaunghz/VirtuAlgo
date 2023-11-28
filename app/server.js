@@ -196,6 +196,17 @@ app.get("/get-algorithms", (req, res) => {
   });
 });
 
+app.get("/balance", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT balance FROM (SELECT * FROM portfolio WHERE userId = $1)",
+    [userID]
+  ).then((result) => {
+    console.log(result.rows[0].balance);
+    res.status(200).json(result.rows[0].balance);
+  });
+});
 
 app.post("/add-portfolio", (req, res) => {
   let portfolioName = req.body.portfolioName;
