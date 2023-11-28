@@ -16,9 +16,15 @@ CREATE TABLE Portfolio (
 	balance DECIMAL(10, 2)
 );
 
+CREATE TABLE Stock (
+	stockId SERIAL PRIMARY KEY,
+	stockName VARCHAR(5),
+	stockPrice DECIMAL(10, 2)
+);
+
 CREATE TABLE Portfolio_Stock (
 	portfolioId INTEGER REFERENCES Portfolio(portfolioId),
-  stockName VARCHAR(5),
+	stockId INTEGER REFERENCES Stock(stockId),
 	stockAmount INTEGER,
   totalPrice DECIMAL(10, 2)
 );

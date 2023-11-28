@@ -8,15 +8,16 @@ let balanceBlock = document.getElementById('balance');
 DATABASE INTEGRATION TASK 1
 Now the default is set 100k initial. We should fetch this value from the database.
 */
-let balance = 100000;
+let balance = 100000.00;
 let intervalID;
 // Dynamic Components
 let valueDisplay;
 let chartContainer;
 let canvas;
-let buyStockButton;
-let sellStockButton;
-let buySellEventAdded = false;
+let buyStockInput = document.getElementById("buy-stock-count");
+let buyStockButton = document.getElementById("buy-stock");
+let sellStockInput = document.getElementById("sell-stock-count");
+let sellStockButton = document.getElementById("sell-stock");
 // initial state
 balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
 
@@ -51,7 +52,7 @@ function fetchStock(ticker) {
         }
         return response.json();
     }).then((response) => {
-        console.log(response);
+        //console.log(response);
         if (response.length == 0) {
             errorMsg.textContent = "Stock Market is Closed.";
         }
@@ -134,7 +135,7 @@ function makeChart(stocks, ticker) {
         "Current": curStock.ClosePrice
     }
     displayCurrentStockPrice(curPricesDict);
-    makeBuySellButtons(ticker, curStock.ClosePrice);
+    displayBuySell();
 }
 
 function displayCurrentStockPrice(curPrices) {
@@ -157,51 +158,74 @@ function displayCurrentStockPrice(curPrices) {
     TODO: Make the stock count input box for buy and sell button
 */
 // Buy and Sell Skeleton
-function makeBuySellButtons(ticker, curPrice) {
-    // Destroy buttons if they exists
-    let buyStock = document.getElementById("buy-stock");
-    let sellStock = document.getElementById("sell-stock");
-
-    if (buyStock || sellStock) {
-        buySellEventAdded = false;
-        buyStock = null;
-        sellStock = null;
-    }
-
-    // Create buttons dynamically
-    console.log(ticker);
-    console.log(curPrice);
-    if (!buyStockButton) {
-        buyStockButton = document.createElement("button");
-        buyStockButton.textContent = "Buy Stock";
-        buyStockButton.id = "buy-stock";
-        document.body.appendChild(buyStockButton);
-        document.body.appendChild(document.createElement("br"));
-    }
-    if (!sellStockButton) {
-        sellStockButton = document.createElement("button");
-        sellStockButton.textContent = "Sell Stock";
-        buyStockButton.id = "sell-stock";
-        document.body.appendChild(sellStockButton);
-        document.body.appendChild(document.createElement("br"));
-    }
-
-    // This below code attaches event listeners to the buy and sell buttons after the chart is created.
-    
-    if (!buySellEventAdded) {
-        buySellEventAdded = true;
-        buyStockButton.addEventListener("click", buyHandler);
-        sellStockButton.addEventListener("click", sellHandler);
-    }
-
-    function buyHandler() {
-        buy(ticker, curPrice);
-    }
-    function sellHandler() {
-        sell(ticker, curPrice);
-    }
+function displayBuySell() {
+    buyStockInput.style.display = "block"; 
+    buyStockButton.style.display = "block"; 
+    sellStockInput.style.display = "block"; 
+    sellStockButton.style.display = "block"; 
 }
 
+buyStockButton.addEventListener("click", buyHandler);
+sellStockButton.addEventListener("click", sellHandler);
+
+function buyHandler() {
+    let buyStockCountValue = document.getElementById("buy-stock-count").value;
+    let ticker = stockSearch.value;
+
+    if(buyStockCountValue === "") {
+        alert("No shares entered to buy.");
+        return;
+    }
+
+    let buyStockCount = parseInt(buyStockCountValue);
+
+    if(isNaN(buyStockCount) || buyStockCount <= 0) {
+        alert("Please enter a valid number of shares to buy.");
+        return;
+    }
+
+    buy(ticker, buyStockCount);
+}
+
+function sellHandler() {
+    let totalBoughtPrice;
+    let totalSharesOwned;
+    let ticker = stockSearch.value;
+    
+    // Note that the username and portfolioName are hard-coded right now
+    // Need to fetch how many stocks the user owns and the total price of the stocks
+    // Can potentially move this fetch into the sellHandler() function then pass in totalBoughtPrice and totalShares into this sell() function.
+    fetch(`/get-stock?stockName=${ticker}&portfolioName=port1`).then((response) => {
+        return response.json();
+    }).then((result) => {
+        console.log(result[0]);
+        totalBoughtPrice = result[0].totalprice;
+        totalSharesOwned = result[0].stockamount;
+
+        let sellStockCountValue = document.getElementById("sell-stock-count").value;
+
+        if(sellStockCountValue === "") {
+            alert("No shares entered to sell.");
+            return;
+        }
+    
+        let sellStockCount = parseInt(sellStockCountValue);
+    
+        if(isNaN(sellStockCount) || sellStockCount <= 0 || sellStockCount > totalSharesOwned) {
+            alert("Please enter a valid number of shares to sell.");
+            return;
+        }
+    
+        console.log("Total Value of Shares:", totalBoughtPrice);
+        console.log("Shares Owned:", totalSharesOwned);
+        sell(ticker, sellStockCount, totalBoughtPrice, totalSharesOwned);
+    }).catch((error) => {
+        console.log(error);
+        return;
+    }) 
+
+
+}
 
 /*
     TODO: Integrate buy and sell to database
@@ -212,7 +236,7 @@ Now this will do computation of subtration (buy) and addition (sell) to the "bal
 What is left is we must update the new values into the database. The values to update are:
 
 For buy:
-- new balance (subtraced balance)
+- new balance (subtraced balance)  
 - stock name
 - how many stock
 - total price of the stock
@@ -225,14 +249,35 @@ For sell:
 */
 
 // buy and sell backend
-function buy(ticker, curPrice) {
-    balance -= curPrice;
+async function buy(ticker, numShares) {
+    const curPrice = await getClosePrice(ticker);
+
+    balance -= curPrice * parseFloat(numShares);
+
+    // Updates the stock details for current user's portfolio
+    //  - Essentially updates "Portfolio_Stock" table
     fetch("/buy-stock", {
         method: "POST",
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: ticker, amount: curPrice, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares, portfolioName: "port1"}),
+    }).then(response => {
+        console.log("Status:", response.status);
+    }).then(body => {
+        console.log("Body:", body);
+    }).catch(error => {
+        console.log(error);
+    });
+
+    // Updates the portfolio details for current user
+    //  - Essentally updates "Portfolio" table
+    fetch("/update-portfolio", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({portfolioName: "port1", balance: balance})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -242,14 +287,39 @@ function buy(ticker, curPrice) {
     });
 };
 
-function sell(curPrice) {
-    balance += curPrice;
+async function sell(ticker, numShares, totalStockPrice, totalSharesOwned) {
+    const curPrice = await getClosePrice(ticker);
+
+    // Need to calculate the stock amount after selling stock
+    // stockCount does not need to be calculated as the POST request performs subtraction of shares already
+    let originalBoughtStockPrice = (parseFloat(totalStockPrice) / parseFloat(totalSharesOwned)).toFixed(2); // In the provided example, this would be 100 / 4 = $25 each
+    console.log(originalBoughtStockPrice);
+    let newTotalStockPrice = ((totalSharesOwned - numShares) * originalBoughtStockPrice).toFixed(2);
+    console.log(newTotalStockPrice);
+
     fetch("/sell-stock", {
         method: "POST",
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: ticker, amount: curPrice, username: "test", portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: newTotalStockPrice, portfolioName: "port1"}),
+    }).then(response => {
+        console.log("Status:", response.status);
+    }).then(body => {
+        console.log("Body:", body);
+    }).catch(error => {
+        console.log(error);
+    });
+
+    // Calculate the new balance after selling stock
+    balance += (curPrice * numShares);
+
+    fetch("/update-portfolio", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({portfolioName: "port1", balance: balance})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -258,3 +328,22 @@ function sell(curPrice) {
         console.log(error);
     });
 };
+
+async function getClosePrice(ticker) {
+    return await fetch(
+        `/alpaca/market/${ticker}`
+    ).then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    }).then((response) => {
+        var result = [];
+        for (var i in response) {
+            result.push(response[i]);
+        }
+        return result[0].ClosePrice;
+    }).catch((error) => {
+        console.log("Error Fetching stock data: ", error);
+    });
+}

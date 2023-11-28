@@ -58,7 +58,7 @@ document.getElementById("signup-form").addEventListener("submit", function(e) {
 				result.classList.remove("error");
 				setTimeout(function() {
 					window.location.href = "index.html";
-				}, 2000);
+				}, 500);
 			} else {
 				result.textContent = "Account creation failed";
 				result.classList.add("error");
