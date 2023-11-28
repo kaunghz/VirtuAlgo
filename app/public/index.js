@@ -2,12 +2,7 @@ let stockSearch = document.getElementById("stockSearch");
 let stockSearchButton = document.getElementById("stockSearchButton");
 let errorMsg = document.getElementById("ErrorMsg");
 let balanceBlock = document.getElementById('balance');
-/*
-    TODO: Fectch this balance from the database
 
-DATABASE INTEGRATION TASK 1
-Now the default is set 100k initial. We should fetch this value from the database.
-*/
 let intervalID;
 // Dynamic Components
 let valueDisplay;
