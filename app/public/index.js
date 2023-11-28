@@ -8,7 +8,6 @@ let balanceBlock = document.getElementById('balance');
 DATABASE INTEGRATION TASK 1
 Now the default is set 100k initial. We should fetch this value from the database.
 */
-let balance = 100000.00;
 let intervalID;
 // Dynamic Components
 let valueDisplay;
@@ -18,8 +17,6 @@ let buyStockInput = document.getElementById("buy-stock-count");
 let buyStockButton = document.getElementById("buy-stock");
 let sellStockInput = document.getElementById("sell-stock-count");
 let sellStockButton = document.getElementById("sell-stock");
-// initial state
-balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
 
 stockSearchButton.addEventListener("click", () => {
     var loading = document.createElement("span");
@@ -31,7 +28,7 @@ stockSearchButton.addEventListener("click", () => {
         clearInterval(intervalID);
     }
     intervalID = setInterval(function() {
-        balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
+        displayBalance();
         loading.remove();
         fetchStock(ticker);
     }, 2000);
@@ -252,6 +249,7 @@ For sell:
 async function buy(ticker, numShares) {
     const curPrice = await getClosePrice(ticker);
 
+    let balance = await getBalance();
     balance -= curPrice * parseFloat(numShares);
 
     // Updates the stock details for current user's portfolio
@@ -312,6 +310,7 @@ async function sell(ticker, numShares, totalStockPrice, totalSharesOwned) {
     });
 
     // Calculate the new balance after selling stock
+    let balance = await getBalance();
     balance += (curPrice * numShares);
 
     fetch("/update-portfolio", {
@@ -347,3 +346,21 @@ async function getClosePrice(ticker) {
         console.log("Error Fetching stock data: ", error);
     });
 }
+
+async function getBalance() {
+    return await fetch("/balance").then((res) => {
+        return res.json();
+    }).then((res) => {
+        let userBalance = parseFloat(res);
+        return userBalance;
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+async function displayBalance() {
+    const balance = await getBalance();
+    balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
+}
+
+displayBalance();
