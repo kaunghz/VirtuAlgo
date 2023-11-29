@@ -36,3 +36,45 @@ updatePortfolioButton.addEventListener("click", function() {
         console.log(error);
     });
 });
+
+async function getPortfolio() {
+    const stocks = await fetch("/portfolio/stocks").then((res) => {
+        console.log(res);
+        return res.json();
+    }).then((res) => {
+        console.log(res);
+        return res;
+    }).catch((err) => {
+        console.log(err);
+    });
+    return stocks;
+}
+
+async function displayPortfolio() {
+    const stocks = await getPortfolio();
+
+    const divStocks = document.getElementById("stocks");
+    const hrFirst = document.createElement("hr");
+
+    divStocks.append(hrFirst);
+
+    for (const stock of stocks) {
+        const stockName = stock.stockname;
+        const stockAmount = stock.stockamount;
+
+        if (0 < stockAmount) {
+            const hr = document.createElement("hr");
+            const div = document.createElement("div");
+            const pTicker = document.createElement("p");
+            const pAmount = document.createElement("p");
+
+            pTicker.textContent = "Stock: " + stockName;
+            pAmount.textContent = "Amount Owned: " + stockAmount;
+
+            div.append(pTicker, pAmount, hr);
+            divStocks.append(div);
+        }
+    }
+}
+
+displayPortfolio();
