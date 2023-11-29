@@ -160,7 +160,7 @@ function displayBuySell() {
 buyStockButton.addEventListener("click", buyHandler);
 sellStockButton.addEventListener("click", sellHandler);
 
-function buyHandler() {
+async function buyHandler() {
     let buyStockCountValue = document.getElementById("buy-stock-count").value;
     let ticker = stockSearch.value;
 
@@ -242,42 +242,47 @@ For sell:
 
 // buy and sell backend
 async function buy(ticker, numShares) {
-    const curPrice = await getClosePrice(ticker);
-
+    let curPrice = await getClosePrice(ticker);
+    let cost = curPrice * parseFloat(numShares);
     let balance = await getBalance();
-    balance -= curPrice * parseFloat(numShares);
 
-    // Updates the stock details for current user's portfolio
-    //  - Essentially updates "Portfolio_Stock" table
-    fetch("/buy-stock", {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json"
-        },
-        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares, portfolioName: "port1"}),
-    }).then(response => {
-        console.log("Status:", response.status);
-    }).then(body => {
-        console.log("Body:", body);
-    }).catch(error => {
-        console.log(error);
-    });
+    if (balance >= cost) {
+        balance -= cost;
 
-    // Updates the portfolio details for current user
-    //  - Essentally updates "Portfolio" table
-    fetch("/update-portfolio", {
-        method: "POST",
-        headers: {
+        // Updates the stock details for current user's portfolio
+        //  - Essentially updates "Portfolio_Stock" table
+        fetch("/buy-stock", {
+            method: "POST",
+            headers: {
             "Content-Type": "application/json"
-        },
-        body: JSON.stringify({portfolioName: "port1", balance: balance})
-    }).then(response => {
-        console.log("Status:", response.status);
-    }).then(body => {
-        console.log("Body:", body);
-    }).catch(error => {
-        console.log(error);
-    });
+            },
+            body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares, portfolioName: "port1"}),
+        }).then(response => {
+            console.log("Status:", response.status);
+        }).then(body => {
+            console.log("Body:", body);
+        }).catch(error => {
+            console.log(error);
+        });
+
+        // Updates the portfolio details for current user
+        //  - Essentally updates "Portfolio" table
+        fetch("/update-portfolio", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({portfolioName: "port1", balance: balance})
+        }).then(response => {
+            console.log("Status:", response.status);
+        }).then(body => {
+            console.log("Body:", body);
+        }).catch(error => {
+            console.log(error);
+        });
+    } else {
+        alert("Please enter a valid number of shares to sell.");
+    }
 };
 
 async function sell(ticker, numShares, totalStockPrice, totalSharesOwned) {
