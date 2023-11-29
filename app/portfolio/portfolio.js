@@ -59,16 +59,21 @@ async function displayPortfolio() {
     divStocks.append(hrFirst);
 
     for (const stock of stocks) {
-        const hr = document.createElement("hr");
-        const div = document.createElement("div");
-        const pTicker = document.createElement("p");
-        const pAmount = document.createElement("p");
+        const stockName = stock.stockname;
+        const stockAmount = stock.stockamount;
 
-        pTicker.textContent = "Stock: " + stock.stockname;
-        pAmount.textContent = "Amount Owned: " + stock.stockamount;
+        if (0 < stockAmount) {
+            const hr = document.createElement("hr");
+            const div = document.createElement("div");
+            const pTicker = document.createElement("p");
+            const pAmount = document.createElement("p");
 
-        div.append(pTicker, pAmount, hr);
-        divStocks.append(div);
+            pTicker.textContent = "Stock: " + stockName;
+            pAmount.textContent = "Amount Owned: " + stockAmount;
+
+            div.append(pTicker, pAmount, hr);
+            divStocks.append(div);
+        }
     }
 }
 
