@@ -189,7 +189,7 @@ async function displayOwnStock(ticker, curPrice) {
         let profitDisplay = "";
         if (stock.totalprice != 0) {
             stockeach = (stock.totalprice / stockAmount).toFixed(2);
-            profit = stockeach - curPrice;
+            profit = (stockeach - curPrice).toFixed(2);
             if (profit >= 0) {
                 profitDisplay = "<span style='color: green;'> +" + profit + "</span>"
             } else {
