@@ -314,7 +314,7 @@ app.post("/update-portfolio", (req, res) => {
 
 
 app.post("/add-stock", (req, res) => {
-  let stockName = req.body.name;
+  let stockName = req.body.name.toUpperCase();
   let stockPrice = req.body.price;
 
   try {
@@ -364,7 +364,7 @@ app.post("/add-stock", (req, res) => {
 
 
 app.post("/update-stock", (req, res) => {
-  let stockName = req.body.name;
+  let stockName = req.body.name.toUpperCase();
   let stockPrice = req.body.price;
 
   try {
@@ -416,7 +416,7 @@ app.post("/update-stock", (req, res) => {
 // the total price of those stocks
 app.get("/get-stock", (req, res) => {
   let userID = req.session.user_id;
-  let stockName = req.query.stockName;
+  let stockName = req.query.stockName.toUpperCase();
   let portfolioName = req.query.portfolioName;
 
   pool
@@ -464,7 +464,7 @@ app.get("/get-stock", (req, res) => {
 
 app.post("/buy-stock", (req, res) => {
   let userID = req.session.user_id;
-  let stockName = req.body.stockName;
+  let stockName = req.body.stockName.toUpperCase();
   let stockCount = req.body.stockCount;
   let portfolioName = req.body.portfolioName;
   let totalBuyStockAmountValue = req.body.totalStockAmount;
@@ -567,7 +567,7 @@ app.post("/buy-stock", (req, res) => {
 
 app.post("/sell-stock", (req, res) => {
   let userID = req.session.user_id;
-  let stockName = req.body.stockName;
+  let stockName = req.body.stockName.toUpperCase();
   let stockSellCount = req.body.stockCount;
   let portfolioName = req.body.portfolioName;
   let newTotalStockAmountValue = req.body.totalStockAmount;
