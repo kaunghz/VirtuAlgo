@@ -17,14 +17,13 @@
 	<input id="stockSearch" type="text" name="stockSearch">
 	<button id="stockSearchButton">Search</button>
 	<div id="ErrorMsg"></div>
-
-	<input id="buy-stock-count" type="number" placeholder="Number of Shares to Buy..." style="display: none"/>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<input id="buy-stock-count" type="number" placeholder="# of Shares to Buy" style="display: none"/>
 	<button id="buy-stock" style="display: none">Buy Stock</button>
 	<br />
-	<input id="sell-stock-count" type="number" placeholder="Number of Shares to Sell..." style="display: none"/>
+	<input id="sell-stock-count" type="number" placeholder="# of Shares to Sell" style="display: none"/>
 	<button id="sell-stock" style="display: none">Sell Stock</button>
-	
+	<div id="stocksOwnedDisplay" style="display: none"></div>
 	<script src="index.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

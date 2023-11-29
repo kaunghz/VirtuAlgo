@@ -1,3 +1,35 @@
 nav {
     text-align: end;
 }
+
+
+/* CSS */
+button {
+  align-items: center;
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow: transparent 0 0 0 3px,rgba(0, 0, 0, .1) 0 6px 20px;
+  box-sizing: border-box;
+  color: #121212;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 1 1 auto;
+  font-family: Inter,sans-serif;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  outline: none;
+  padding: 0.2rem 2.6rem;
+  text-align: center;
+  text-decoration: none;
+  transition: box-shadow .2s,-webkit-box-shadow .2s;
+  white-space: nowrap;
+  border: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+button:hover {
+  box-shadow: #36A2EB 0 0 0 2px, transparent 0 0 0 0;
+}
