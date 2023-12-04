@@ -1,17 +1,16 @@
-let createPortfolioButton = document.getElementById("createPortfolioButton");
-let updatePortfolioButton = document.getElementById("updatePortfolioButton");
+let updateNameButton = document.getElementById("updatePortfolioNameButton");
+let updateBalanceButton = document.getElementById("updatePortfolioBalanceButton");
 
-let createPortfolioName = document.getElementById("createPortfolioName");
-let updatePortfolioName = document.getElementById("updatePortfolioName");
-let updatePortfolioBalance = document.getElementById("updatePortfolioBalance");
+let newPortfolioName = document.getElementById("newPortfolioName");
+let newPortflioBalance = document.getElementById("newPortfolioBalance");
 
-createPortfolioButton.addEventListener("click", function() {
-    fetch("/add-portfolio", {
+updateNameButton.addEventListener("click", function() {
+    fetch("/update-portfolio-name", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({portfolioName: createPortfolioName.value})
+        body: JSON.stringify({newPortfolioName: newPortfolioName.value})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -21,13 +20,13 @@ createPortfolioButton.addEventListener("click", function() {
     });
 });
 
-updatePortfolioButton.addEventListener("click", function() {
-    fetch("/update-portfolio", {
+updateBalanceButton.addEventListener("click", function() {
+    fetch("/update-portfolio-balance", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({portfolioName: updatePortfolioName.value, balance: updatePortfolioBalance.value})
+        body: JSON.stringify({balance: newPortflioBalance.value})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
