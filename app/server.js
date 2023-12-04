@@ -80,17 +80,28 @@ app.post("/signup", (req, res) => {
               return res.status(401).send();
             }
             let userID = result.rows[0].userid;
-            console.log(userID);
             req.session.user_id = userID;
             req.session.username = username;
             req.session.authenticated = true;
+            
+            let portfolioName = "default_port_name";
+            pool
+            .query("INSERT INTO portfolio (portfolioName, userId, balance) VALUES ($1, $2, $3)", [portfolioName, userID, 10000.00])
+            .then(() => {
+              console.log(portfolioName, "was added");
+              req.session.portfolio_name = portfolioName;
+              res.status(200).send();
+            })
+            .catch((error) => {
+              console.log("SQL Insert Into Portfolio:", error);
+              res.status(500).send();
+            });
+
           })
           .catch((error) => {
             console.log("SQL Select From Users:", error);
             res.status(500).send();
           });
-
-          res.status(200).send();
         })
         .catch((error) => {
           console.log("SQL Insert Into Users:", error);
