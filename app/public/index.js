@@ -377,7 +377,8 @@ async function getBalance() {
 
 async function displayBalance() {
     const balance = await getBalance();
-    balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
+    const formattedBalance = balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    balanceBlock.textContent = "Balance: " + formattedBalance;
 }
 
 displayBalance();

@@ -34,7 +34,8 @@ async function getBalance() {
 
 async function displayBalance() {
     const balance = await getBalance();
-    currentPortfolioBalance.textContent = "$" + balance.toFixed(2);
+    const formattedBalance = balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    currentPortfolioBalance.textContent = "Balance: " + formattedBalance;
 }
 
 displayPortfolioName();

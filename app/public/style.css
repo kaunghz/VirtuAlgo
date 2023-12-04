@@ -46,3 +46,13 @@ th, td {
   padding: 8px;
   text-align: center;
 }
+
+.input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.input-container label {
+  margin-right: 10px;
+}
