@@ -35,5 +35,15 @@ CREATE TABLE Algorithms (
   sellAboveStocks DECIMAL(10, 2)
 );
 
+CREATE TABLE Portfolio_History (
+	portfolioId INTEGER REFERENCES Portfolio(portfolioId),
+  stockName VARCHAR(5),
+	stockAmount INTEGER,
+  stockPrice DECIMAL(10, 2),
+  totalStock INTEGER,
+  portfolioBalance DECIMAL(10, 2),
+  transactionDate TIMESTAMP
+);
+
 INSERT INTO users (username, saltedPass, email) VALUES ('test', '$2b$10$DicT0edfb5vM8qVNHkjqmOSyRvOQaiCdLTBvxF7lsEjRkcEmGSgE.', 'qwert1234@gmail.com');
 INSERT INTO portfolio (portfolioName, userId, balance) VALUES ('port1', 1, 10000.00);
