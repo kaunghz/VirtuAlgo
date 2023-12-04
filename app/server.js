@@ -424,6 +424,17 @@ app.post("/update-portfolio-balance", (req, res) => {
     });
 });
 
+app.get("/portfolioName", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT portfolioname FROM (SELECT * FROM portfolio WHERE userId = $1)",
+    [userID]
+  ).then((result) => {
+    console.log(result.rows[0].portfolioname);
+    res.status(200).json(result.rows[0].portfolioname);
+  });
+});
 
 app.post("/add-stock", (req, res) => {
   let stockName = req.body.name.toUpperCase();

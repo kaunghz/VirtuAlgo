@@ -1,8 +1,44 @@
+let currentPortfolioName = document.getElementById("portfolioName");
+let currentPortfolioBalance = document.getElementById("portfolioBalance");
 let updateNameButton = document.getElementById("updatePortfolioNameButton");
 let updateBalanceButton = document.getElementById("updatePortfolioBalanceButton");
 
 let newPortfolioName = document.getElementById("newPortfolioName");
 let newPortflioBalance = document.getElementById("newPortfolioBalance");
+
+async function getPortfolioName() {
+    return await fetch("/portfolioName").then((res) => {
+        return res.json();
+    }).then((res) => {
+        return res;
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+async function displayPortfolioName() {
+    const portfolioName = await getPortfolioName();
+    currentPortfolioName.textContent = portfolioName;
+}
+
+async function getBalance() {
+    return await fetch("/balance").then((res) => {
+        return res.json();
+    }).then((res) => {
+        let userBalance = parseFloat(res);
+        return userBalance;
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+async function displayBalance() {
+    const balance = await getBalance();
+    currentPortfolioBalance.textContent = "$" + balance.toFixed(2);
+}
+
+displayPortfolioName();
+displayBalance();
 
 updateNameButton.addEventListener("click", function() {
     fetch("/update-portfolio-name", {
@@ -15,6 +51,7 @@ updateNameButton.addEventListener("click", function() {
         console.log("Status:", response.status);
     }).then(body => {
         console.log("Body:", body);
+        displayPortfolioName();
     }).catch(error => {
         console.log(error);
     });
@@ -31,6 +68,7 @@ updateBalanceButton.addEventListener("click", function() {
         console.log("Status:", response.status);
     }).then(body => {
         console.log("Body:", body);
+        displayBalance();
     }).catch(error => {
         console.log(error);
     });
