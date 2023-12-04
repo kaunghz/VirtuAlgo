@@ -238,6 +238,19 @@ app.get("/portfolio/stocks", (req, res) => {
   });
 });
 
+app.get("/portfolio/history", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
 app.post("/add-portfolio", (req, res) => {
   let portfolioName = req.body.portfolioName;
 
