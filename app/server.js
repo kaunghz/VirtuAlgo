@@ -25,6 +25,7 @@ app.use(express.static("public"));
 // app.use(express.static("login"));
 app.use(express.static("algotrade"));
 app.use(express.static("portfolio"));
+app.use(express.static("history"));
 
 // Use session middleware
 app.use(session({
@@ -229,6 +230,19 @@ app.get("/portfolio/stocks", (req, res) => {
 
   pool.query(
     "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1)",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY portfolio_history.transactiondate DESC",
     [userID]
   ).then((result) => {
     res.status(200).json(result.rows);
@@ -638,10 +652,27 @@ app.post("/buy-stock", (req, res) => {
                   AND portfolioname=$2) \
                   AND stockName = $5", [userID, portfolioName, stockCount, totalBuyStockAmountValue, stockName])
                 .then(() => {
-                  console.log(stockName, "was purchased (update)");
-                  res.status(200).send();
-                })
-                .catch((error) => {
+                  pool
+                  .query("INSERT INTO portfolio_history (portfolioId, stockName, stockAmount, stockPrice, totalStock, portfolioBalance, transactionDate) \
+                  VALUES ( \
+                    (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                    CAST($3 AS VARCHAR), \
+                    $4, \
+                    $5, \
+                    (SELECT stockamount FROM portfolio_stock WHERE portfolioid= \
+                      (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+                      AND portfolioname=$2) \
+                      AND stockname=$3), \
+                    (SELECT balance FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                    (SELECT now()::timestamp(0)))", [userID, portfolioName, stockName, stockCount, totalBuyStockAmountValue])
+                  .then(() => {
+                    console.log(stockName, "was purchased (update)");
+                    res.status(200).send();
+                  }).catch((error) => {
+                    console.log("SQL Insert into Portfolio_History:", error);
+                    res.status(500).send();
+                  })
+                }).catch((error) => {
                   console.log("SQL Update Portfolio_Stock:", error);
                   res.status(500).send();
                 });
@@ -650,20 +681,36 @@ app.post("/buy-stock", (req, res) => {
                 .query("INSERT INTO portfolio_stock (portfolioId, stockName, stockamount, totalPrice) \
                 VALUES ( \
                   (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
-                   $3, \
+                  $3, \
                   $4, \
                   $5)", [userID, portfolioName, stockName, stockCount, totalBuyStockAmountValue])
                 .then(() => {
-                  console.log(stockName, "was purchased (insert)");
-                  res.status(200).send();
-                })
-                .catch((error) => {
+                  pool
+                  .query("INSERT INTO portfolio_history (portfolioId, stockName, stockAmount, stockPrice, totalStock, portfolioBalance, transactionDate) \
+                  VALUES ( \
+                    (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                    CAST($3 AS VARCHAR), \
+                    $4, \
+                    $5, \
+                    (SELECT stockamount FROM portfolio_stock WHERE portfolioid= \
+                      (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+                      AND portfolioname=$2) \
+                      AND stockname=$3), \
+                    (SELECT balance FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                    (SELECT now()::timestamp(0)))", [userID, portfolioName, stockName, stockCount, totalBuyStockAmountValue])
+                  .then(() => {
+                    console.log(stockName, "was purchased (insert)");
+                    res.status(200).send();
+                  }).catch((error) => {
+                    console.log("SQL Insert into Portfolio_History:", error);
+                    res.status(500).send();
+                  })
+                }).catch((error) => {
                   console.log("SQL Insert Into Portfolio_Stock:", error);
                   res.status(500).send();
                 });
               }
-            })
-            .catch((error) => {
+            }).catch((error) => {
               console.log("SQL Select From Portfolio_Stock:", error);
               res.status(500).send();
             });
@@ -752,8 +799,26 @@ app.post("/sell-stock", (req, res) => {
                       AND portfolioname=$2) \
                       AND stockname=$3", [userID, portfolioName, stockName, stockSellCount, newTotalStockAmountValue])
                     .then(() => {
-                      console.log(stockName, "was sold");
-                      res.status(200).send();
+                      pool
+                      .query("INSERT INTO portfolio_history (portfolioId, stockName, stockAmount, stockPrice, totalStock, portfolioBalance, transactionDate) \
+                      VALUES ( \
+                        (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                        CAST($3 AS VARCHAR), \
+                        $4, \
+                        $5, \
+                        (SELECT stockamount FROM portfolio_stock WHERE portfolioid= \
+                          (SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 \
+                          AND portfolioname=$2) \
+                          AND stockname=$3), \
+                        (SELECT balance FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2), \
+                        (SELECT now()::timestamp(0)))", [userID, portfolioName, stockName, (0 - stockSellCount), newTotalStockAmountValue])
+                      .then(() => {
+                        console.log(stockName, "was sold");
+                        res.status(200).send();
+                      }).catch((error) => {
+                        console.log("SQL Insert into Portfolio_History:", error);
+                        res.status(500).send();
+                      })
                     })
                     .catch((error) => {
                       console.log("SQL Update Portfolio_Stock:", error);
@@ -795,7 +860,6 @@ app.post("/sell-stock", (req, res) => {
       res.status(500).send();
     })
   });
-
 
 // APLACA
 
