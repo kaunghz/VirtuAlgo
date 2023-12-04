@@ -114,14 +114,17 @@ app.post("/signin", (req, res) => {
   let username = req.body.username;
   let plaintextPassword = req.body.plaintextPassword;
   pool
-    .query("SELECT userID, saltedPass FROM users WHERE username = $1", [username])
+    .query("SELECT users.userID, saltedPass, portfolioname FROM users JOIN portfolio ON users.userid=portfolio.userid WHERE username = $1", [username])
     .then((result) => {
       if (result.rows.length === 0) {
         console.log(username, "does not exists");
         return res.status(401).send();
       }
+
       let userID = result.rows[0].userid;
       let saltedPassword = result.rows[0].saltedpass;
+      let portfolioName = result.rows[0].portfolioname;
+
       bcrypt
         .compare(plaintextPassword, saltedPassword)
         .then((passwordMatched) => {
@@ -130,9 +133,11 @@ app.post("/signin", (req, res) => {
             req.session.user_id = userID;
             req.session.username = username;
             req.session.authenticated = true;
+            req.session.portfolio_name = portfolioName;
+     
             res.status(200).send();
           } else {
-            console.log(username, "could not logged in");
+            console.log("Invalid Password for user: ", username);
             res.status(401).send();
           }
         })
@@ -263,7 +268,7 @@ app.post("/add-portfolio", (req, res) => {
 
 
 app.post("/update-portfolio", (req, res) => {
-  let portfolioName = req.body.portfolioName;
+  let portfolioName = req.session.portfolio_name;
   let balance = parseFloat(req.body.balance);
 
   if(!req.session || !req.session.authenticated) {
@@ -417,7 +422,7 @@ app.post("/update-stock", (req, res) => {
 app.get("/get-stock", (req, res) => {
   let userID = req.session.user_id;
   let stockName = req.query.stockName.toUpperCase();
-  let portfolioName = req.query.portfolioName;
+  let portfolioName = req.session.portfolio_name;
 
   pool
   .query("SELECT * FROM users WHERE userid = $1", [userID])
@@ -466,7 +471,7 @@ app.post("/buy-stock", (req, res) => {
   let userID = req.session.user_id;
   let stockName = req.body.stockName.toUpperCase();
   let stockCount = req.body.stockCount;
-  let portfolioName = req.body.portfolioName;
+  let portfolioName = req.session.portfolio_name;
   let totalBuyStockAmountValue = req.body.totalStockAmount;
 
   try {
@@ -569,7 +574,7 @@ app.post("/sell-stock", (req, res) => {
   let userID = req.session.user_id;
   let stockName = req.body.stockName.toUpperCase();
   let stockSellCount = req.body.stockCount;
-  let portfolioName = req.body.portfolioName;
+  let portfolioName = req.session.portfolio_name;
   let newTotalStockAmountValue = req.body.totalStockAmount;
 
   try {
