@@ -12,20 +12,29 @@
 	</nav>
 </head>
 <body>
-	<h1>Portfolio</h1>
-	<h2>Inputs for Testing</h2>
+	<h1>Your Portfolio</h1>
+    <table>
+        <tr>
+            <th>Portfolio Name</th>
+            <th>Portfolio Balance</th>
+        </tr>
+        <tr>
+            <td id="portfolioName"></td>
+            <td id="portfolioBalance"></td>
+        </tr>
+    </table>
+	<hr>
+	<h3>Update Portfolio Menu</h3>
 	<div>
-		<label for="createPortfolio">Portfolio Name:</label>
-		<input type="text" id="createPortfolioName">
-		<button id="createPortfolioButton">Create Portfolio</button>
+		<label for="newPortfolioName">New Portfolio Name:</label>
+		<input type="text" id="newPortfolioName">
+		<button id="updatePortfolioNameButton">Update Portfolio Name</button>
 	</div>
 
 	<div>
-		<label for="updatePortfolio">Portfolio Name:</label>
-		<input type="text" id="updatePortfolioName">
-		<label for="updatePortfolio">Balance:</label>
-		<input type="text" id="updatePortfolioBalance">
-		<button id="updatePortfolioButton">Update Portfolio</button>
+		<label for="newPortfolioBalance">New Portfolio Balance:</label>
+		<input type="number" id="newPortfolioBalance">
+		<button id="updatePortfolioBalanceButton">Update Portfolio Balance</button>
 	</div>
 
 	<div id="stocks">

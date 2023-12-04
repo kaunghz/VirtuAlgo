@@ -18,11 +18,20 @@
 	<button id="stockSearchButton">Search</button>
 	<div id="ErrorMsg"></div>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<input id="buy-stock-count" type="number" placeholder="# of Shares to Buy" style="display: none"/>
-	<button id="buy-stock" style="display: none">Buy Stock</button>
+	<br>
+	<div id="input-container">
+		<input id="buy-stock-count" type="number" placeholder="# of Shares to Buy" style="display: none"/>
+		<button id="buy-stock" style="display: none">Buy Stock</button>
+	</div>
+
 	<br />
-	<input id="sell-stock-count" type="number" placeholder="# of Shares to Sell" style="display: none"/>
-	<button id="sell-stock" style="display: none">Sell Stock</button>
+
+	<div id="input-container">
+		<input id="sell-stock-count" type="number" placeholder="# of Shares to Sell" style="display: none"/>
+		<button id="sell-stock" style="display: none">Sell Stock</button>
+	</div>
+	
+	<br />
 	<div id="stocksOwnedDisplay" style="display: none"></div>
 	<script src="index.js"></script>
 </body>

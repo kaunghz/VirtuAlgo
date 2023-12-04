@@ -230,7 +230,7 @@ function sellHandler() {
     // Note that the username and portfolioName are hard-coded right now
     // Need to fetch how many stocks the user owns and the total price of the stocks
     // Can potentially move this fetch into the sellHandler() function then pass in totalBoughtPrice and totalShares into this sell() function.
-    fetch(`/get-stock?stockName=${ticker}&portfolioName=port1`).then((response) => {
+    fetch(`/get-stock?stockName=${ticker}`).then((response) => {
         return response.json();
     }).then((result) => {
         console.log(result[0]);
@@ -273,7 +273,7 @@ async function buy(ticker, numShares) {
             headers: {
             "Content-Type": "application/json"
             },
-            body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares, portfolioName: "port1"}),
+            body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: curPrice * numShares}),
         }).then(response => {
             console.log("Status:", response.status);
         }).then(body => {
@@ -289,7 +289,7 @@ async function buy(ticker, numShares) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({portfolioName: "port1", balance: balance})
+            body: JSON.stringify({balance: balance})
         }).then(response => {
             console.log("Status:", response.status);
         }).then(body => {
@@ -317,7 +317,7 @@ async function sell(ticker, numShares, totalStockPrice, totalSharesOwned) {
         headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: newTotalStockPrice, portfolioName: "port1"}),
+        body: JSON.stringify({stockName: ticker, stockCount: numShares, totalStockAmount: newTotalStockPrice}),
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -335,7 +335,7 @@ async function sell(ticker, numShares, totalStockPrice, totalSharesOwned) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({portfolioName: "port1", balance: balance})
+        body: JSON.stringify({balance: balance})
     }).then(response => {
         console.log("Status:", response.status);
     }).then(body => {
@@ -377,7 +377,8 @@ async function getBalance() {
 
 async function displayBalance() {
     const balance = await getBalance();
-    balanceBlock.textContent = "Balance: $" + balance.toFixed(2);
+    const formattedBalance = balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    balanceBlock.textContent = "Balance: " + formattedBalance;
 }
 
 displayBalance();

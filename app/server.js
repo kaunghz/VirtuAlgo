@@ -80,17 +80,28 @@ app.post("/signup", (req, res) => {
               return res.status(401).send();
             }
             let userID = result.rows[0].userid;
-            console.log(userID);
             req.session.user_id = userID;
             req.session.username = username;
             req.session.authenticated = true;
+            
+            let portfolioName = "default_port_name";
+            pool
+            .query("INSERT INTO portfolio (portfolioName, userId, balance) VALUES ($1, $2, $3)", [portfolioName, userID, 10000.00])
+            .then(() => {
+              console.log(portfolioName, "was added");
+              req.session.portfolio_name = portfolioName;
+              res.status(200).send();
+            })
+            .catch((error) => {
+              console.log("SQL Insert Into Portfolio:", error);
+              res.status(500).send();
+            });
+
           })
           .catch((error) => {
             console.log("SQL Select From Users:", error);
             res.status(500).send();
           });
-
-          res.status(200).send();
         })
         .catch((error) => {
           console.log("SQL Insert Into Users:", error);
@@ -114,14 +125,17 @@ app.post("/signin", (req, res) => {
   let username = req.body.username;
   let plaintextPassword = req.body.plaintextPassword;
   pool
-    .query("SELECT userID, saltedPass FROM users WHERE username = $1", [username])
+    .query("SELECT users.userID, saltedPass, portfolioname FROM users JOIN portfolio ON users.userid=portfolio.userid WHERE username = $1", [username])
     .then((result) => {
       if (result.rows.length === 0) {
         console.log(username, "does not exists");
         return res.status(401).send();
       }
+
       let userID = result.rows[0].userid;
       let saltedPassword = result.rows[0].saltedpass;
+      let portfolioName = result.rows[0].portfolioname;
+
       bcrypt
         .compare(plaintextPassword, saltedPassword)
         .then((passwordMatched) => {
@@ -130,9 +144,11 @@ app.post("/signin", (req, res) => {
             req.session.user_id = userID;
             req.session.username = username;
             req.session.authenticated = true;
+            req.session.portfolio_name = portfolioName;
+     
             res.status(200).send();
           } else {
-            console.log(username, "could not logged in");
+            console.log("Invalid Password for user: ", username);
             res.status(401).send();
           }
         })
@@ -263,7 +279,7 @@ app.post("/add-portfolio", (req, res) => {
 
 
 app.post("/update-portfolio", (req, res) => {
-  let portfolioName = req.body.portfolioName;
+  let portfolioName = req.session.portfolio_name;
   let balance = parseFloat(req.body.balance);
 
   if(!req.session || !req.session.authenticated) {
@@ -312,6 +328,113 @@ app.post("/update-portfolio", (req, res) => {
   });
 });
 
+app.post("/update-portfolio-name", (req, res) => {
+  let newPortfolioName = req.body.newPortfolioName;
+
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  let userID = req.session.user_id;
+
+  if(!newPortfolioName ||
+    typeof newPortfolioName !== "string" ||
+    newPortfolioName.length < 1 ||
+    newPortfolioName.length > 20)
+    {
+      console.log("Invalid portfolio name");
+      return res.status(401).send();
+    }
+
+  pool
+  .query("SELECT portfolioname, portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1", [userID])
+  .then((result) => {
+    if (result.rows.length > 0) {
+      let oldPortfolioName = result.rows[0].portfolioname;
+      pool
+      .query("UPDATE portfolio SET portfolioname=$2 WHERE portfolioid=( \
+        SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1)", 
+        [userID, newPortfolioName])
+      .then(() => {
+        console.log(oldPortfolioName, "was updated to", newPortfolioName);
+        req.session.portfolio_name = newPortfolioName;
+        res.status(200).send();
+      })
+      .catch((error) => {
+        console.log("SQL Update Portfolio:", error);
+        res.status(500).send();
+      });
+    } else {
+      console.log(newPortfolioName, "does not exists");
+      res.status(401).send();
+    }
+  })
+  .catch((error) => {
+    console.log("SQL Update Portfolio:", error);
+    res.status(500).send();
+  });
+});
+
+app.post("/update-portfolio-balance", (req, res) => {
+  let balance = parseFloat(req.body.balance);
+  let portfolioName = req.session.portfolio_name;
+
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  let userID = req.session.user_id;
+
+  if(!balance ||
+    !portfolioName ||
+    typeof balance !== "number" ||
+    balance < 0 ||
+    balance > 10000000.00)
+    {
+      console.log("Invalid balance");
+      return res.status(401).send();
+    }
+
+    pool
+    .query("SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2", [userID, portfolioName])
+    .then((result) => {
+      if (result.rows.length > 0) {
+        pool
+        .query("UPDATE portfolio SET balance=$3 WHERE portfolioid=( \
+          SELECT portfolioid FROM portfolio JOIN users ON portfolio.userid=users.userid WHERE users.userid=$1 AND portfolioname=$2)", 
+          [userID, portfolioName, balance])
+        .then(() => {
+          console.log(portfolioName, "'s balance was updated");
+          res.status(200).send();
+        })
+        .catch((error) => {
+          console.log("SQL Update Portfolio:", error);
+          res.status(500).send();
+        });
+      } else {
+        console.log(portfolioName, "does not exists");
+        res.status(401).send();
+      }
+    })
+    .catch((error) => {
+      console.log("SQL Update Portfolio:", error);
+      res.status(500).send();
+    });
+});
+
+app.get("/portfolioName", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT portfolioname FROM (SELECT * FROM portfolio WHERE userId = $1)",
+    [userID]
+  ).then((result) => {
+    console.log(result.rows[0].portfolioname);
+    res.status(200).json(result.rows[0].portfolioname);
+  });
+});
 
 app.post("/add-stock", (req, res) => {
   let stockName = req.body.name.toUpperCase();
@@ -417,7 +540,7 @@ app.post("/update-stock", (req, res) => {
 app.get("/get-stock", (req, res) => {
   let userID = req.session.user_id;
   let stockName = req.query.stockName.toUpperCase();
-  let portfolioName = req.query.portfolioName;
+  let portfolioName = req.session.portfolio_name;
 
   pool
   .query("SELECT * FROM users WHERE userid = $1", [userID])
@@ -466,7 +589,7 @@ app.post("/buy-stock", (req, res) => {
   let userID = req.session.user_id;
   let stockName = req.body.stockName.toUpperCase();
   let stockCount = req.body.stockCount;
-  let portfolioName = req.body.portfolioName;
+  let portfolioName = req.session.portfolio_name;
   let totalBuyStockAmountValue = req.body.totalStockAmount;
 
   try {
@@ -569,7 +692,7 @@ app.post("/sell-stock", (req, res) => {
   let userID = req.session.user_id;
   let stockName = req.body.stockName.toUpperCase();
   let stockSellCount = req.body.stockCount;
-  let portfolioName = req.body.portfolioName;
+  let portfolioName = req.session.portfolio_name;
   let newTotalStockAmountValue = req.body.totalStockAmount;
 
   try {
