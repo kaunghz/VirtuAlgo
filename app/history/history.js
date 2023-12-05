@@ -98,7 +98,7 @@ async function displayHistory() {
         const balance = record.portfoliobalance;
         const date = record.transactiondate;
 
-        const tr = document.createElement('tr');   
+        const tr = document.createElement('tr');
 
         const tdStockName = document.createElement('td');
         const tdStockAmount = document.createElement('td');
