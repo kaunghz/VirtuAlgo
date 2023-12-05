@@ -6,33 +6,47 @@
 	<link rel="stylesheet" type="text/css" href="login.css">
 </head>
 <body>
-	<h1>Welcome to VirtuAlgo</h1>
-	<form id="login-form" method="POST" action="/signin">
-		<div class="loginHeading">
-			<h2>Sign In</h2>
-			<p>Enter your username and password</p>
-		</div>
-
-		<div class="loginBody">
-			<label for="username">Username:</label>
-			<input type="text" id="username" placeholder="Enter Username" required>
-			<br><br>
-			<label for="password">Password:</label>
-			<input type="password" id="password" placeholder="Enter Password" required>
-			<div class="rememberme">
-				<label>
-					<input type="checkbox" checked="checked" name="remember"> Remember me
-				</label>
-				<label>
-					<a href="forgotPassword.html">Need help?</a>
-				</label>
+	<div class="main">
+		<img src="../pics/logo.png" alt="logo" width="200px">
+		<h1>Welcome to VirtuAlgo</h1>
+		<h2 style="margin-top:0cm;">
+			<span id="element"></span>
+		</h2>
+		<script src="https://unpkg.com/typed.js@2.0.15/dist/typed.umd.js"></script>
+		<script>
+			var typed = new Typed('#element', {
+				strings: ["Unleash Your Trading Strategies in a Virtual World!", "Play, Learn, Earn: a Virtual Playground with no cost"],
+				typeSpeed: 50,
+				cursorChar: '█',
+			});
+		</script>
+		<form id="login-form" method="POST" action="/signin">
+			<div class="loginHeading">
+				<h2>Sign In</h2>
+				<p>Enter your username and password</p>
 			</div>
-			<br>
-			<button type="login">Login</button>
-			<div id="result">&nbsp;</div>
-		</div>
-	</form>
-	<p class="signup">New to VirtuAlgo? <a href="signup.html">Sign up now.</a></p>
-	<script src="login.js"></script>
+
+			<div class="loginBody">
+				<label for="username">Username:</label>
+				<input type="text" id="username" placeholder="Enter Username" required>
+				<br><br>
+				<label for="password">Password:</label>
+				<input type="password" id="password" placeholder="Enter Password" required>
+				<div class="rememberme">
+					<label>
+						<input type="checkbox" checked="checked" name="remember"> Remember me
+					</label>
+					<label>
+						<a href="forgotPassword.html">Need help?</a>
+					</label>
+				</div>
+				<br>
+				<button type="login">Login</button>
+				<div id="result">&nbsp;</div>
+			</div>
+		</form>
+		<p class="signup">New to VirtuAlgo? <a href="signup.html">Sign up now.</a></p>
+		<script src="login.js"></script>
+	</div>
 </body>
 </html>

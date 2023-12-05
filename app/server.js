@@ -23,6 +23,7 @@ app.use(express.json());
 app.use(express.static("login"));
 app.use(express.static("public"));
 // app.use(express.static("login"));
+app.use(express.static("pics"));
 app.use(express.static("algotrade"));
 app.use(express.static("portfolio"));
 app.use(express.static("history"));
@@ -864,6 +865,7 @@ app.post("/sell-stock", (req, res) => {
 // APLACA
 
 const Alpaca = require('@alpacahq/alpaca-trade-api');
+const exp = require("constants");
 const alpaca = new Alpaca({
   keyId: env.alpaca_key,
   secretKey: env.alpaca_secret,
