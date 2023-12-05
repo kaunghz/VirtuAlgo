@@ -2,6 +2,10 @@
 
 VirtuAlgo is a stock portfolio management system that incorporates options to perform algorithmic trading. (We will add more to this later...).
 
+# Dependencies
+
+Must have PostgresSQL Version 16.0 or higher.
+
 # Installation
 
 First, clone the branch.
