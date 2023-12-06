@@ -16,7 +16,7 @@ document.getElementById("login-form").addEventListener("submit", function(e) {
 		})
 	}).then((response) => {
 		if (response.status === 200) {
-			result.textContent = "Login successful. Redirecting you to the Home Page of VirtuAlgo...";
+			result.textContent = "Login success";
 			result.classList.remove("error");
 			setTimeout(function() {
 				window.location.href = "index.html";

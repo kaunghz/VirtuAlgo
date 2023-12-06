@@ -46,6 +46,7 @@ function fetchStock(ticker) {
         return response.json();
     }).then((response) => {
         //console.log(response);
+        response = [100.12, 102, 104, 119, 109, 109, 99, 123, 100, 102, 104, 119, 109, 109, 99, 123, 103, 109, 99, 123]
         if (response.length == 0) {
             errorMsg.textContent = "Stock Market is Closed.";
         }
