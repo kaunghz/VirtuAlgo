@@ -17,11 +17,11 @@ body {
 
 .background{
 	top: 800px;
-    width: 430px;
+    width: 610px;
     height: 450px;
     position: absolute;
     left: 50%;
-    top: 63%;
+    top: 65%;
 }
 .background .shape{
     height: 200px;
