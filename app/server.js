@@ -235,11 +235,45 @@ app.post("/algorithm/new/buy-below", (req, res) => {
 });
 
 app.post("/algorithm/new/sell-above", (req, res) => {
-  return;
+  const body = req.body;
+
+  const name = body['name'];
+  const quantity = body['quantity'];
+  const ticker = body['ticker'];
+  const price = body['price'];
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    'INSERT INTO Algorithm_Sell_Above (userId, name, ticker, sellAbovePrice, sellAboveQuantity) VALUES ($1, $2, $3, $4, $5)',
+    [userID, name, ticker, price, quantity]
+  ).then(response => {
+    res.status(200).send(response);
+  }).catch(error => {
+    console.log(error);
+    res.status(500).send(error);
+  });
 });
 
 app.post("/algorithm/new/sell-below", (req, res) => {
-  return;
+  const body = req.body;
+
+  const name = body['name'];
+  const quantity = body['quantity'];
+  const ticker = body['ticker'];
+  const price = body['price'];
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    'INSERT INTO Algorithm_Sell_Below (userId, name, ticker, sellBelowPrice, sellBelowQuantity) VALUES ($1, $2, $3, $4, $5)',
+    [userID, name, ticker, price, quantity]
+  ).then(response => {
+    res.status(200).send(response);
+  }).catch(error => {
+    console.log(error);
+    res.status(500).send(error);
+  });
 });
 
 app.get("/balance", (req, res) => {

@@ -32,6 +32,24 @@ CREATE TABLE Algorithm_Buy_Below (
   buyBelowQuantity INTEGER NOT NULL
 );
 
+CREATE TABLE Algorithm_Sell_Above (
+  AlgorithmSellAboveId SERIAL PRIMARY KEY,
+  userId INTEGER REFERENCES USERS(userId),
+  name VARCHAR(20) NOT NULL,
+  ticker VARCHAR(5) NOT NULL,
+  sellAbovePrice DECIMAL(10, 2) NOT NULL,
+  sellAboveQuantity INTEGER NOT NULL
+);
+
+CREATE TABLE Algorithm_Sell_Below (
+  AlgorithmSellBelowId SERIAL PRIMARY KEY,
+  userId INTEGER REFERENCES USERS(userId),
+  name VARCHAR(20) NOT NULL,
+  ticker VARCHAR(5) NOT NULL,
+  sellBelowPrice DECIMAL(10, 2) NOT NULL,
+  sellBelowQuantity INTEGER NOT NULL
+);
+
 CREATE TABLE Portfolio_History (
 	portfolioId INTEGER REFERENCES Portfolio(portfolioId),
   stockName VARCHAR(5),

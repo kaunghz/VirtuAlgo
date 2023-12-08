@@ -6,7 +6,7 @@ const newAlgorithmSellBelowForm = document.getElementById("new-sell-below-algori
 // Show Algorithm Buttons
 const showBuyBelowAlgorithmsButton = document.getElementById("show-buy-below-algorithms");
 const showSellAboveAlgorithmsButton = document.getElementById("show-sell-above-algorithms");
-const showSellBelowAlgorithmsButton = document.getElementById("show-sell-below-algorithms");z
+const showSellBelowAlgorithmsButton = document.getElementById("show-sell-below-algorithms");
 
 // Algorithm List
 const algorithmsList = document.getElementById("algorithms");
@@ -49,10 +49,64 @@ function showBuyBelowAlgorithms() {
 
 function showSellAboveAlgorithms() {
     clearAlgorithmsList();
+
+    fetch("/algorithm/get/sell-above", (response) => {
+        return response.body();
+    }).then((result) => {
+        return result.json();
+    }).then((result) => {
+        createAlgorithmsListHeader("Sell Above Algorithms");
+
+        for (const algorithm of result) {
+            const divider = document.createElement('hr');
+            const container = document.createElement('div');
+            const nameP = document.createElement('p');
+            const priceP = document.createElement('p');
+            const quantityP = document.createElement('p');
+            const tickerP = document.createElement('p');
+
+            nameP.textContent = `Algorithm: ${algorithm.name}`;
+            quantityP.textContent = `Buy: ${algorithm.sellabovequantity}`;
+            tickerP.textContent = `Stock: ${algorithm.ticker}`;
+            priceP.textContent = `Buy Below: $${algorithm.sellaboveprice}`;
+            
+            container.append(divider, nameP, quantityP, tickerP, priceP, divider);
+            algorithmsList.append(container);
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
 }
 
 function showSellBelowAlgorithms() {
     clearAlgorithmsList();
+
+    fetch("/algorithm/get/sell-below", (response) => {
+        return response.body();
+    }).then((result) => {
+        return result.json();
+    }).then((result) => {
+        createAlgorithmsListHeader("Sell Below Algorithms");
+
+        for (const algorithm of result) {
+            const divider = document.createElement('hr');
+            const container = document.createElement('div');
+            const nameP = document.createElement('p');
+            const priceP = document.createElement('p');
+            const quantityP = document.createElement('p');
+            const tickerP = document.createElement('p');
+
+            nameP.textContent = `Algorithm: ${algorithm.name}`;
+            quantityP.textContent = `Buy: ${algorithm.sellbelowquantity}`;
+            tickerP.textContent = `Stock: ${algorithm.ticker}`;
+            priceP.textContent = `Buy Below: $${algorithm.sellbelowprice}`;
+            
+            container.append(divider, nameP, quantityP, tickerP, priceP, divider);
+            algorithmsList.append(container);
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
 }
 
 
