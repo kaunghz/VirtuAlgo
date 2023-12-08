@@ -15,6 +15,8 @@ const algorithmsList = document.getElementById("algorithms");
 /* Show Algorithms */
 
 showBuyBelowAlgorithmsButton.addEventListener("click", showBuyBelowAlgorithms);
+showSellAboveAlgorithmsButton.addEventListener("click", showSellAboveAlgorithms);
+showSellBelowAlgorithmsButton.addEventListener("click", showSellBelowAlgorithms);
 
 function showBuyBelowAlgorithms() {
     clearAlgorithmsList();
@@ -66,9 +68,9 @@ function showSellAboveAlgorithms() {
             const tickerP = document.createElement('p');
 
             nameP.textContent = `Algorithm: ${algorithm.name}`;
-            quantityP.textContent = `Buy: ${algorithm.sellabovequantity}`;
+            quantityP.textContent = `Sell Quantity: ${algorithm.sellabovequantity}`;
             tickerP.textContent = `Stock: ${algorithm.ticker}`;
-            priceP.textContent = `Buy Below: $${algorithm.sellaboveprice}`;
+            priceP.textContent = `Sell Price: $${algorithm.sellaboveprice}`;
             
             container.append(divider, nameP, quantityP, tickerP, priceP, divider);
             algorithmsList.append(container);
@@ -97,9 +99,9 @@ function showSellBelowAlgorithms() {
             const tickerP = document.createElement('p');
 
             nameP.textContent = `Algorithm: ${algorithm.name}`;
-            quantityP.textContent = `Buy: ${algorithm.sellbelowquantity}`;
+            quantityP.textContent = `Sell Quantity: ${algorithm.sellbelowquantity}`;
             tickerP.textContent = `Stock: ${algorithm.ticker}`;
-            priceP.textContent = `Buy Below: $${algorithm.sellbelowprice}`;
+            priceP.textContent = `Sell Price: $${algorithm.sellbelowprice}`;
             
             container.append(divider, nameP, quantityP, tickerP, priceP, divider);
             algorithmsList.append(container);
@@ -155,6 +157,106 @@ newAlgorithmBuyBelowForm.addEventListener("submit", async (e) => {
     }).then(response => {
         console.log(response);
         alert("New buy below algorithm added.");
+        location.reload();
+    }).catch(error => {
+        console.log(error);
+        alert("Could not create algorithm.");
+    });
+});
+
+newAlgorithmSellAboveForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("sell-above-name").value;
+    const quantity = document.getElementById("sell-above-quantity").value;
+    const ticker = document.getElementById("sell-above-ticker").value;
+    const price = document.getElementById("sell-above-price").value;
+
+    if (!(name || quantity || ticker || price)) {
+        alert("Fields cannot be null");
+        return;
+    }
+
+    if (!Number.isInteger(Number.parseInt(quantity))) {
+        alert("Quantity must be an integer.");
+        return;
+    } else if (Number.parseInt(quantity) < 1) {
+        alert("Quantity must be greater than 0.");
+        return;
+    }
+
+    if (Number.isNaN(Number.parseFloat(price))) {
+        alert("Price must be a valid float.");
+        return;
+    } else if (price < 0.0) {
+        alert("Price must be greater than 0.0.");
+        return;
+    }
+
+    await fetch("/algorithm/new/sell-above", {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            "name": name,
+            "quantity": quantity,
+            "ticker": ticker,
+            "price": price,
+        })
+    }).then(response => {
+        console.log(response);
+        alert("New sell above algorithm added.");
+        location.reload();
+    }).catch(error => {
+        console.log(error);
+        alert("Could not create algorithm.");
+    });
+});
+
+newAlgorithmSellBelowForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("sell-below-name").value;
+    const quantity = document.getElementById("sell-below-quantity").value;
+    const ticker = document.getElementById("sell-below-ticker").value;
+    const price = document.getElementById("sell-below-price").value;
+
+    if (!(name || quantity || ticker || price)) {
+        alert("Fields cannot be null");
+        return;
+    }
+
+    if (!Number.isInteger(Number.parseInt(quantity))) {
+        alert("Quantity must be an integer.");
+        return;
+    } else if (Number.parseInt(quantity) < 1) {
+        alert("Quantity must be greater than 0.");
+        return;
+    }
+
+    if (Number.isNaN(Number.parseFloat(price))) {
+        alert("Price must be a valid float.");
+        return;
+    } else if (price < 0.0) {
+        alert("Price must be greater than 0.0.");
+        return;
+    }
+
+    await fetch("/algorithm/new/sell-below", {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            "name": name,
+            "quantity": quantity,
+            "ticker": ticker,
+            "price": price,
+        })
+    }).then(response => {
+        console.log(response);
+        alert("New sell below algorithm added.");
         location.reload();
     }).catch(error => {
         console.log(error);

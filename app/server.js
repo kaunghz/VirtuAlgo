@@ -213,6 +213,46 @@ app.get("/algorithm/get/buy-below", (req, res) => {
   });
 });
 
+app.get("/algorithm/get/sell-above", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM Algorithm_Sell_Above WHERE userid = $1", [userID]
+  ).then((result) => {
+    let rows = result.rows;
+    console.log(rows);
+    res.status(200).send(rows);
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).send();
+  });
+});
+
+app.get("/algorithm/get/sell-below", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM Algorithm_Sell_Below WHERE userid = $1", [userID]
+  ).then((result) => {
+    let rows = result.rows;
+    console.log(rows);
+    res.status(200).send(rows);
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).send();
+  });
+});
+
 app.post("/algorithm/new/buy-below", (req, res) => {
   const body = req.body;
 
