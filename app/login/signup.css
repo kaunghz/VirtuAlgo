@@ -14,11 +14,10 @@ body {
 	text-align: center;
 }
 
-
 .background{
 	top: 800px;
     width: 610px;
-    height: 450px;
+    height: 495px;
     position: absolute;
     left: 50%;
     top: 65%;
