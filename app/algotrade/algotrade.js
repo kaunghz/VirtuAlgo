@@ -1,68 +1,126 @@
-let newAlgorithmForm = document.getElementById("new-algorithm-form");
+// Create Algorithm Forms
+const newAlgorithmBuyBelowForm = document.getElementById("new-buy-below-algorithm");
+const newAlgorithmSellAboveForm = document.getElementById("new-sell-above-algorithm");
+const newAlgorithmSellBelowForm = document.getElementById("new-sell-below-algorithm");
 
-let newAlgorithmName = document.getElementById("new-name");
-let buyBelowPrice = document.getElementById("buy-below-price");
-let buyBelowStocks = document.getElementById("buy-below-stocks");
-let sellBelowPrice = document.getElementById("sell-below-price");
-let sellBelowStocks = document.getElementById("sell-below-stocks");
-let sellAbovePrice = document.getElementById("sell-above-price");
-let sellAboveStocks = document.getElementById("sell-above-stocks");
+// Show Algorithm Buttons
+const showBuyBelowAlgorithmsButton = document.getElementById("show-buy-below-algorithms");
+const showSellAboveAlgorithmsButton = document.getElementById("show-sell-above-algorithms");
+const showSellBelowAlgorithmsButton = document.getElementById("show-sell-below-algorithms");z
 
-let algorithmsList = document.getElementById("algorithms");
-
-fetch('/get-algorithms').then((response) => {
-    return response.json();
-}).then((result) => {
-    console.log(result);
-    for (const algorithm of result) {
-        let divider = document.createElement('hr');
-        let container = document.createElement('div');
-        let algorithmName = document.createElement('p');
-        let buyBelowP = document.createElement('p');
-        let buyBelowS = document.createElement('p');
-        let sellBelowP = document.createElement('p');
-        let sellBelowS = document.createElement('p');
-        let sellAboveP = document.createElement('p');
-        let sellAboveS = document.createElement('p');
-
-        algorithmName.textContent = `Algorithm: ${algorithm.name}`;
-        buyBelowP.textContent = `Buy below $${algorithm.buybelowprice}`;
-        buyBelowS.textContent = `Buy ${algorithm.buybelowstocks} shares`;
-        sellBelowP.textContent = `Sell below $${algorithm.sellbelowprice}`;
-        sellBelowS.textContent = `Sell ${algorithm.sellbelowstocks} shares`;
-        sellAboveP.textContent = `Sell above $${algorithm.sellaboveprice}`;
-        sellAboveS.textContent = `Sell ${algorithm.sellabovestocks} shares`;
-
-        container.append(divider, algorithmName, buyBelowP, buyBelowS, sellBelowP, sellBelowS, sellAboveP, sellAboveS, divider);
-        
-        algorithmsList.append(container);
-    }
-}).catch((error) => {
-    console.log(error);
-});
+// Algorithm List
+const algorithmsList = document.getElementById("algorithms");
 
 
-newAlgorithmForm.addEventListener("submit", function(e) {
+/* Show Algorithms */
+
+showBuyBelowAlgorithmsButton.addEventListener("click", showBuyBelowAlgorithms);
+
+function showBuyBelowAlgorithms() {
+    clearAlgorithmsList();
+
+    fetch("/algorithm/get/buy-below", (response) => {
+        return response.body();
+    }).then((result) => {
+        return result.json();
+    }).then((result) => {
+        createAlgorithmsListHeader("Buy Below Algorithms");
+
+        for (const algorithm of result) {
+            const divider = document.createElement('hr');
+            const container = document.createElement('div');
+            const nameP = document.createElement('p');
+            const priceP = document.createElement('p');
+            const quantityP = document.createElement('p');
+            const tickerP = document.createElement('p');
+
+            nameP.textContent = `Algorithm: ${algorithm.name}`;
+            quantityP.textContent = `Buy: ${algorithm.buybelowquantity}`;
+            tickerP.textContent = `Stock: ${algorithm.ticker}`;
+            priceP.textContent = `Buy Below: $${algorithm.buybelowprice}`;
+            
+            container.append(divider, nameP, quantityP, tickerP, priceP, divider);
+            algorithmsList.append(container);
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
+function showSellAboveAlgorithms() {
+    clearAlgorithmsList();
+}
+
+function showSellBelowAlgorithms() {
+    clearAlgorithmsList();
+}
+
+
+/* Algorithm Forms */
+
+newAlgorithmBuyBelowForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    fetch("/new-algorithm", {
+    const name = document.getElementById("buy-below-name").value;
+    const quantity = document.getElementById("buy-below-quantity").value;
+    const ticker = document.getElementById("buy-below-ticker").value;
+    const price = document.getElementById("buy-below-price").value;
+
+    if (!(name || quantity || ticker || price)) {
+        alert("Fields cannot be null");
+        return;
+    }
+
+    if (!Number.isInteger(Number.parseInt(quantity))) {
+        alert("Quantity must be an integer.");
+        return;
+    } else if (Number.parseInt(quantity) < 1) {
+        alert("Quantity must be greater than 0.");
+        return;
+    }
+
+    if (Number.isNaN(Number.parseFloat(price))) {
+        alert("Price must be a valid float.");
+        return;
+    } else if (price < 0.0) {
+        alert("Price must be greater than 0.0.");
+        return;
+    }
+
+    await fetch("/algorithm/new/buy-below", {
         method: 'POST',
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            "new-algorithm-name": newAlgorithmName.value,
-            "buy-below-price": buyBelowPrice.value,
-            "buy-below-stocks": buyBelowStocks.value,
-            "sell-below-price": sellBelowPrice.value,
-            "sell-below-stocks": sellBelowStocks.value,
-            "sell-above-price": sellAbovePrice.value,
-            "sell-above-stocks": sellAboveStocks.value
+            "name": name,
+            "quantity": quantity,
+            "ticker": ticker,
+            "price": price,
         })
     }).then(response => {
         console.log(response);
+        alert("New buy below algorithm added.");
         location.reload();
     }).catch(error => {
         console.log(error);
+        alert("Could not create algorithm.");
     });
 });
+
+
+/* Helper Functions */
+
+function clearAlgorithmsList() {
+    while (algorithmsList.firstChild) {
+        algorithmsList.removeChild(algorithmsList.lastChild);
+    }
+}
+
+function createAlgorithmsListHeader(headerText) {
+    const firstDivider = document.createElement('hr');
+    const secondDivider = document.createElement('hr');
+    const header = document.createElement("h4");
+    header.textContent = headerText;
+    algorithmsList.append(firstDivider, header, secondDivider);
+}

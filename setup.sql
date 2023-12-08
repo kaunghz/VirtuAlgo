@@ -23,16 +23,13 @@ CREATE TABLE Portfolio_Stock (
   totalPrice DECIMAL(10, 2)
 );
 
-CREATE TABLE Algorithms (
-  algorithmId SERIAL PRIMARY KEY,
-  userId INTEGER REFERENCES Users(userId),
-  name VARCHAR(20),
-  buyBelowPrice DECIMAL(10, 2),
-  buyBelowStocks DECIMAL(10, 2),
-  sellBelowPrice DECIMAL(10, 2),
-  sellBelowStocks DECIMAL(10, 2),
-  sellAbovePrice DECIMAL(10, 2),
-  sellAboveStocks DECIMAL(10, 2)
+CREATE TABLE Algorithm_Buy_Below (
+  AlgorithmBuyBelowId SERIAL PRIMARY KEY,
+  userId INTEGER REFERENCES USERS(userId),
+  name VARCHAR(20) NOT NULL,
+  ticker VARCHAR(5) NOT NULL,
+  buyBelowPrice DECIMAL(10, 2) NOT NULL,
+  buyBelowQuantity INTEGER NOT NULL
 );
 
 CREATE TABLE Portfolio_History (
