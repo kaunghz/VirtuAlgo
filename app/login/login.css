@@ -62,3 +62,7 @@ label{
     color: #9e9c9c;
 }
 
+#username,
+#password {
+    border: 1px solid black;
+}
