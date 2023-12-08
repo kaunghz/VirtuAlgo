@@ -46,7 +46,7 @@ function fetchStock(ticker) {
         return response.json();
     }).then((response) => {
         //console.log(response);
-        response = [100.12, 102, 104, 119, 109, 109, 99, 123, 100, 102, 104, 119, 109, 109, 99, 123, 103, 109, 99, 123]
+        // response = [100.12, 102, 104, 119, 109, 109, 99, 123, 100, 102, 104, 119, 109, 109, 99, 123, 103, 109, 99, 123]
         if (response.length == 0) {
             errorMsg.textContent = "Stock Market is Closed.";
         }
@@ -191,9 +191,9 @@ async function displayOwnStock(ticker, curPrice) {
         if (stock.totalprice != 0) {
             stockeach = (stock.totalprice / stockAmount).toFixed(2);
             profit = (curPrice - stockeach).toFixed(2);
-            if (profit >= 0) {
+            if (profit > 0) {
                 profitDisplay = "<span style='color: green;'> +" + profit + "&uarr;</span>"
-            } else {
+            } else if (profit < 0) {
                 profitDisplay = "<span style='color: red;'>" + profit + "&#x2193;</span>"
             }
         }
