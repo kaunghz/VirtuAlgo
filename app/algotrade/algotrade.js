@@ -1,3 +1,5 @@
+import { getPortfolio } from "../portfolio/portfolio";
+
 // Create Algorithm Forms
 const newAlgorithmBuyBelowForm = document.getElementById("new-buy-below-algorithm");
 const newAlgorithmSellAboveForm = document.getElementById("new-sell-above-algorithm");
@@ -279,4 +281,203 @@ function createAlgorithmsListHeader(headerText) {
     const header = document.createElement("h4");
     header.textContent = headerText;
     algorithmsList.append(firstDivider, header, secondDivider);
+}
+
+
+/* Execute Algorithms' Logic */
+
+const runAlgorithmsButton = document.getElementById("run-algorithms-button");
+
+runAlgorithmsButton.addEventListener("click", runUserTradingAlgorithms);
+
+async function runUserTradingAlgorithms() {
+
+    /* Retrieve User's Algorithms By Methodology */
+
+    const algorithmsBuyBelow = await fetch("/algorithm/get/buy-below", (response) => {
+        return response.body();
+    }).then((result) => {
+        return result.json();
+    }).catch((error) => {
+        console.log(error);
+        return [];
+    });
+
+    const algorithmsSellAbove = await fetch("/algorithm/get/sell-above", (response) => {
+        return response.body();
+    }).then((result) => {
+        return result.json();
+    }).catch((error) => {
+        console.log(error);
+        return [];
+    });
+
+    const algorithmsSellBelow = await fetch("/algorithm/get/sell-below", (response) => {
+        return response.body();
+    }).then((result) => {
+        return result.json();
+    }).catch((error) => {
+        console.log(error);
+        return [];
+    });
+
+    /* Run The Algorithms By Setting Intervals For Every Algorithm Of Each Methodology */
+
+    for (const algorithm of algorithmsBuyBelow) {
+        setInterval(async () => {
+            const stockData = await fetch(`/alpaca/market/${algorithm.ticker}`).then((response) => {
+                return response.json();
+            }).then((result) => {
+                console.log(result);
+                return result;
+            }).catch((error) => {
+                console.log(error);
+                return [];
+            });
+
+            const balance = await fetch("/balance").then((response) => {
+                return response.json();
+            }).then((result) => {
+                console.log(result);
+                return result;
+            }).catch((error) => {
+                console.log(error);
+                return 0.0;
+            });
+
+            if (stockData.length > 1) {
+                const curStock = stockData[0];
+                const prevStock = stockData[1];
+
+                if (prevStock.closePrice >= algorithm.buybelowprice && curStock.closePrice < algorithm.buybelowprice) {
+                    const total = ((algorithm.buybelowquantity).toFixed(0) * curStock.closePrice).toFixed(2);
+                    if (total <= balance) {
+                        await fetch("/buy-stock", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({stockName: algorithm.ticker, stockCount: algorithm.buybelowquantity, totalStockAmount: total}),
+                        }).then(response => {
+                            console.log("Status:", response.status);
+                        }).then(body => {
+                            console.log("Body:", body);
+                        }).catch(error => {
+                            console.log(error);
+                        });
+                    }
+                }
+            }
+            
+            console.log(stockData);
+        }, 2000);
+    }
+
+    for (const algorithm of algorithmsSellAbove) {
+        setInterval(async () => {
+            const stockData = await fetch(`/alpaca/market/${algorithm.ticker}`).then((response) => {
+                return response.json();
+            }).then((result) => {
+                console.log(result);
+                return result;
+            }).catch((error) => {
+                console.log(error);
+                return [];
+            });
+
+            const stocks = await getPortfolio();
+            const userStockData = getUserStockDataFromPortfolioStocks(stocks, algorithm.ticker);
+
+            if (stockData.length > 1) {
+                const curStock = stockData[0];
+                const prevStock = stockData[1];
+                
+                if (Object.keys(userStockData).length === 2) {
+                    if (prevStock.closePrice <= algorithm.sellaboveprice && curStock.closePrice > algorithm.sellaboveprice) {
+                        if (userStockData.quantity >= algorithm.sellabovequantity) {
+                            const total = ((algorithm.sellaboveprice).toFixed(0) * algorithm.sellabovequantity).toFixed(2);
+
+                            fetch("/sell-stock", {
+                                method: "POST",
+                                headers: {
+                                "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({stockName: algorithm.ticker, stockCount: algorithm.sellabovequantity, totalStockAmount: total}),
+                            }).then(response => {
+                                console.log("Status:", response.status);
+                            }).then(body => {
+                                console.log("Body:", body);
+                            }).catch(error => {
+                                console.log(error);
+                            });
+                        }
+                    }
+                }
+            }
+            
+            console.log(stockData);
+        }, 2000);
+    }
+
+    for (const algorithm of algorithmsSellBelow) {
+        setInterval(async () => {
+            const stockData = await fetch(`/alpaca/market/${algorithm.ticker}`).then((response) => {
+                return response.json();
+            }).then((result) => {
+                console.log(result);
+                return result;
+            }).catch((error) => {
+                console.log(error);
+                return [];
+            });
+
+            const stocks = await getPortfolio();
+            const userStockData = getUserStockDataFromPortfolioStocks(stocks, algorithm.ticker);
+
+            if (stockData.length > 1) {
+                const curStock = stockData[0];
+                const prevStock = stockData[1];
+                
+                if (Object.keys(userStockData).length === 2) {
+                    if (prevStock.closePrice >= algorithm.sellbelowprice && curStock.closePrice < algorithm.sellbelowprice) {
+                        if (userStockData.quantity >= algorithm.sellbelowquantity) {
+                            const total = ((algorithm.sellbelowprice).toFixed(0) * algorithm.sellbelowquantity).toFixed(2);
+
+                            fetch("/sell-stock", {
+                                method: "POST",
+                                headers: {
+                                "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({stockName: algorithm.ticker, stockCount: algorithm.sellbelowquantity, totalStockAmount: total}),
+                            }).then(response => {
+                                console.log("Status:", response.status);
+                            }).then(body => {
+                                console.log("Body:", body);
+                            }).catch(error => {
+                                console.log(error);
+                            });
+                        }
+                    }
+                }
+            }
+            
+            console.log(stockData);
+        }, 2000);
+    }
+}
+
+
+/* Helpers */
+
+const getUserStockDataFromPortfolioStocks =  (stocks, ticker) => {
+    for (const stock of stocks) {
+        if (stock.stockname === ticker) {
+            return {
+                "ticker": stock.stockname,
+                "quantity": stock.stockamount,
+            };
+        }
+    }
+
+    return {};
 }

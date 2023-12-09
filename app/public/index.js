@@ -55,6 +55,7 @@ function fetchStock(ticker) {
             result.push(response[i]);
         }
         if (result.length > 0) {
+            console.log(result);
             makeChart(result, ticker);
         }
     }).catch((error) => {

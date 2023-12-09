@@ -75,7 +75,7 @@ updateBalanceButton.addEventListener("click", function() {
     });
 });
 
-async function getPortfolio() {
+export async function getPortfolio() {
     const stocks = await fetch("/portfolio/stocks").then((res) => {
         console.log(res);
         return res.json();
