@@ -1,5 +1,3 @@
-import { getPortfolio } from "../portfolio/portfolio";
-
 // Create Algorithm Forms
 const newAlgorithmBuyBelowForm = document.getElementById("new-buy-below-algorithm");
 const newAlgorithmSellAboveForm = document.getElementById("new-sell-above-algorithm");
@@ -287,10 +285,18 @@ function createAlgorithmsListHeader(headerText) {
 /* Execute Algorithms' Logic */
 
 const runAlgorithmsButton = document.getElementById("run-algorithms-button");
+let intervalIDs = [];
 
+// Clicking the button too fast will cause intervals to not clear
 runAlgorithmsButton.addEventListener("click", runUserTradingAlgorithms);
 
 async function runUserTradingAlgorithms() {
+    if (intervalIDs.length > 0) {
+        for (const interval of intervalIDs) {
+            console.log(interval);
+            clearInterval(interval);
+        }
+    }
 
     /* Retrieve User's Algorithms By Methodology */
 
@@ -324,7 +330,7 @@ async function runUserTradingAlgorithms() {
     /* Run The Algorithms By Setting Intervals For Every Algorithm Of Each Methodology */
 
     for (const algorithm of algorithmsBuyBelow) {
-        setInterval(async () => {
+        const intervalID = setInterval(async () => {
             const stockData = await fetch(`/alpaca/market/${algorithm.ticker}`).then((response) => {
                 return response.json();
             }).then((result) => {
@@ -370,11 +376,15 @@ async function runUserTradingAlgorithms() {
             }
             
             console.log(stockData);
+
+            if (!intervalIDs.includes(intervalID)) {
+                intervalIDs.push(intervalID);
+            }
         }, 2000);
     }
 
     for (const algorithm of algorithmsSellAbove) {
-        setInterval(async () => {
+        const intervalID = setInterval(async () => {
             const stockData = await fetch(`/alpaca/market/${algorithm.ticker}`).then((response) => {
                 return response.json();
             }).then((result) => {
@@ -416,11 +426,15 @@ async function runUserTradingAlgorithms() {
             }
             
             console.log(stockData);
+
+            if (!intervalIDs.includes(intervalID)) {
+                intervalIDs.push(intervalID);
+            }
         }, 2000);
     }
 
     for (const algorithm of algorithmsSellBelow) {
-        setInterval(async () => {
+        const intervalID = setInterval(async () => {
             const stockData = await fetch(`/alpaca/market/${algorithm.ticker}`).then((response) => {
                 return response.json();
             }).then((result) => {
@@ -462,6 +476,10 @@ async function runUserTradingAlgorithms() {
             }
             
             console.log(stockData);
+
+            if (!intervalIDs.includes(intervalID)) {
+                intervalIDs.push(intervalID);
+            }
         }, 2000);
     }
 }
@@ -480,4 +498,17 @@ const getUserStockDataFromPortfolioStocks =  (stocks, ticker) => {
     }
 
     return {};
+}
+
+async function getPortfolio() {
+    const stocks = await fetch("/portfolio/stocks").then((res) => {
+        console.log(res);
+        return res.json();
+    }).then((res) => {
+        console.log(res);
+        return res;
+    }).catch((err) => {
+        console.log(err);
+    });
+    return stocks;
 }
