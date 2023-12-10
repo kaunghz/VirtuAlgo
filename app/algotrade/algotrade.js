@@ -11,6 +11,13 @@ let sellAboveStocks = document.getElementById("sell-above-stocks");
 let algorithmsList = document.getElementById("algorithms");
 
 fetch('/get-algorithms').then((response) => {
+    if (response.status === 401) {
+        alert("You must sign in again. Redirecting to login page...");
+        setTimeout(function () {
+            window.location.href = './';
+        }, 500);
+        throw new Error(`Unauthorized: ${response.status} - ${response.statusText}`);
+    }
     return response.json();
 }).then((result) => {
     console.log(result);
@@ -60,6 +67,13 @@ newAlgorithmForm.addEventListener("submit", function(e) {
             "sell-above-stocks": sellAboveStocks.value
         })
     }).then(response => {
+        if (response.status === 401) {
+            alert("You must sign in again. Redirecting to login page...");
+            setTimeout(function () {
+                window.location.href = './';
+            }, 500);
+            throw new Error(`Unauthorized: ${response.status} - ${response.statusText}`);
+        }
         console.log(response);
         location.reload();
     }).catch(error => {
