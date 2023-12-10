@@ -8,6 +8,13 @@ let newPortflioBalance = document.getElementById("newPortfolioBalance");
 
 async function getPortfolioName() {
     return await fetch("/portfolioName").then((res) => {
+        if (res.status === 401) {
+            alert("You must sign in again. Redirecting to login page...");
+            setTimeout(function () {
+                window.location.href = './';
+            }, 500);
+            throw new Error(`Unauthorized: ${res.status} - ${res.statusText}`);
+        }
         return res.json();
     }).then((res) => {
         return res;
