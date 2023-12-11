@@ -317,6 +317,11 @@ app.post("/algorithm/new/sell-below", (req, res) => {
 });
 
 app.get("/balance", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
   const userID = req.session.user_id;
 
   pool.query(
@@ -342,6 +347,11 @@ app.get("/portfolio/stocks", (req, res) => {
 });
 
 app.get("/portfolio/history", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
   const userID = req.session.user_id;
 
   pool.query(
@@ -542,6 +552,11 @@ app.post("/update-portfolio-balance", (req, res) => {
 });
 
 app.get("/portfolioName", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
   const userID = req.session.user_id;
 
   pool.query(
@@ -655,6 +670,11 @@ app.post("/update-stock", (req, res) => {
 // Returns the number of shares of a current stock a user owns AND
 // the total price of those stocks
 app.get("/get-stock", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
   let userID = req.session.user_id;
   let stockName = req.query.stockName.toUpperCase();
   let portfolioName = req.session.portfolio_name;
@@ -703,6 +723,11 @@ app.get("/get-stock", (req, res) => {
 });
 
 app.post("/buy-stock", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
   let userID = req.session.user_id;
   let stockName = req.body.stockName.toUpperCase();
   let stockCount = req.body.stockCount;
@@ -839,6 +864,11 @@ app.post("/buy-stock", (req, res) => {
 
 
 app.post("/sell-stock", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
   let userID = req.session.user_id;
   let stockName = req.body.stockName.toUpperCase();
   let stockSellCount = req.body.stockCount;

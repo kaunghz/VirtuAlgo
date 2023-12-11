@@ -367,6 +367,13 @@ async function getClosePrice(ticker) {
 
 async function getBalance() {
     return await fetch("/balance").then((res) => {
+        if (res.status === 401) {
+            alert("You must sign in again. Redirecting to login page...");
+            setTimeout(function () {
+                window.location.href = './';
+            }, 500);
+            throw new Error(`Unauthorized: ${res.status} - ${res.statusText}`);
+        }
         return res.json();
     }).then((res) => {
         let userBalance = parseFloat(res);
