@@ -293,7 +293,6 @@ runAlgorithmsButton.addEventListener("click", runUserTradingAlgorithms);
 async function runUserTradingAlgorithms() {
     if (intervalIDs.length > 0) {
         for (const interval of intervalIDs) {
-            console.log(interval);
             clearInterval(interval);
         }
     }
