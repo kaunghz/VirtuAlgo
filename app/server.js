@@ -193,17 +193,16 @@ app.post("/new-algorithm", (req, res) => {
   res.status(200).send();
 });
 
-
-app.get("/get-algorithms", (req, res) => {
+app.get("/algorithm/get/buy-below", (req, res) => {
   if(!req.session || !req.session.authenticated) {
     console.log("Current User is not authenticated");
     return res.status(401).send("User is not authenticated");
   }
 
-  let userID = req.session.user_id;
-  console.log(userID);
+  const userID = req.session.user_id;
+
   pool.query(
-    "SELECT * FROM ALGORITHMS WHERE userid = $1", [userID]
+    "SELECT * FROM Algorithm_Buy_Below WHERE userid = $1", [userID]
   ).then((result) => {
     let rows = result.rows;
     console.log(rows);
@@ -211,6 +210,109 @@ app.get("/get-algorithms", (req, res) => {
   }).catch((error) => {
     console.log(error);
     res.status(500).send();
+  });
+});
+
+app.get("/algorithm/get/sell-above", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM Algorithm_Sell_Above WHERE userid = $1", [userID]
+  ).then((result) => {
+    let rows = result.rows;
+    console.log(rows);
+    res.status(200).send(rows);
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).send();
+  });
+});
+
+app.get("/algorithm/get/sell-below", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM Algorithm_Sell_Below WHERE userid = $1", [userID]
+  ).then((result) => {
+    let rows = result.rows;
+    console.log(rows);
+    res.status(200).send(rows);
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).send();
+  });
+});
+
+app.post("/algorithm/new/buy-below", (req, res) => {
+  const body = req.body;
+
+  const name = body['name'];
+  const quantity = body['quantity'];
+  const ticker = body['ticker'];
+  const price = body['price'];
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    'INSERT INTO Algorithm_Buy_Below (userId, name, ticker, buyBelowPrice, buyBelowQuantity) VALUES ($1, $2, $3, $4, $5)',
+    [userID, name, ticker, price, quantity]
+  ).then(response => {
+    res.status(200).send(response);
+  }).catch(error => {
+    console.log(error);
+    res.status(500).send(error);
+  });
+});
+
+app.post("/algorithm/new/sell-above", (req, res) => {
+  const body = req.body;
+
+  const name = body['name'];
+  const quantity = body['quantity'];
+  const ticker = body['ticker'];
+  const price = body['price'];
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    'INSERT INTO Algorithm_Sell_Above (userId, name, ticker, sellAbovePrice, sellAboveQuantity) VALUES ($1, $2, $3, $4, $5)',
+    [userID, name, ticker, price, quantity]
+  ).then(response => {
+    res.status(200).send(response);
+  }).catch(error => {
+    console.log(error);
+    res.status(500).send(error);
+  });
+});
+
+app.post("/algorithm/new/sell-below", (req, res) => {
+  const body = req.body;
+
+  const name = body['name'];
+  const quantity = body['quantity'];
+  const ticker = body['ticker'];
+  const price = body['price'];
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    'INSERT INTO Algorithm_Sell_Below (userId, name, ticker, sellBelowPrice, sellBelowQuantity) VALUES ($1, $2, $3, $4, $5)',
+    [userID, name, ticker, price, quantity]
+  ).then(response => {
+    res.status(200).send(response);
+  }).catch(error => {
+    console.log(error);
+    res.status(500).send(error);
   });
 });
 

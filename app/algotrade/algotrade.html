@@ -16,33 +16,60 @@
 </head>
 <body>
 	<h1>algoTrade</h1>
-	<h2>Create a new algorithm for your trading</h2>
-	<form id="new-algorithm-form" method="POST" action="/new-algorithm">
-		<label for="new-name">New Algorithm Name:</label>
-		<input type="text" id="new-name" placeholder="Name">
-		<br>
-		<p>Rules:</p>
-		<div id="new-buy">
-			<label for="buy-below-price">Buy <input type="text" id="buy-below-stocks" placeholder="number of stocks"> when stock price falls below:</label>
-			<input type="text" id="buy-below-price" placeholder="price">
-			<br>
-		</div>
-		<br>
-		<div id="new-sell-below">
-			<label for="sell-below-price">Sell <input type="text" id="sell-below-stocks" placeholder="number of stocks"> when stock price falls below:</label>
-			<input type="text" id="sell-below-price" placeholder="price">
-			<br>
-		</div>
-		<br>
-		<div id="new-sell-above">
-			<label for="sell-above-price">Sell <input type="text" id="sell-above-stocks" placeholder="number of stocks"> when stock price rises above:</label>
-			<input type="text" id="sell-above-price" placeholder="price">
-			<br>
-		</div>
-		<br>
-		<button type="new-algorithm">Create New Algorithm</button>
+	<h2>Create new algorithms for trading</h2>
+
+	<hr>
+
+	<form id="new-buy-below-algorithm" method="POST">
+		<legend>New Buy Below Algorithm</legend>
+
+		<fieldset>
+			Algorithm Name: <input type="text" id="buy-below-name" maxlength="20" />
+			<br> <br>
+			Buy <input type="text" id="buy-below-quantity" placeholder="number of stocks" /> 
+			of <input type="text" id="buy-below-ticker" placeholder="stock ticker" maxlength="5" /> 
+			when stock price falls below: <input type="text" id="buy-below-price" placeholder="price" />
+			<button type="submit">New Buy Below Algorithm</button>
+		</fieldset>
 	</form>
+
+	<hr>
+
+	<form id="new-sell-above-algorithm" method="POST">
+		<legend>New Sell Above Algorithm</legend>
+
+		<fieldset>
+			Algorithm Name: <input type="text" id="sell-above-name" maxlength="20" />
+			<br> <br>
+			Sell <input type="text" id="sell-above-quantity" placeholder="number of stocks" /> 
+			of <input type="text" id="sell-above-ticker" placeholder="stock ticker" maxlength="5" /> 
+			when stock price raises above: <input type="text" id="sell-above-price" placeholder="price" />
+			<button type="submit">New Sell Above Algorithm</button>
+		</fieldset>
+	</form>
+
+	<hr>
+
+	<form id="new-sell-below-algorithm" method="POST">
+		<legend>New Sell Below Algorithm</legend>
+
+		<fieldset>
+			Algorithm Name: <input type="text" id="sell-below-name" maxlength="20" />
+			<br> <br>
+			Sell <input type="text" id="sell-below-quantity" placeholder="number of stocks" /> 
+			of <input type="text" id="sell-below-ticker" placeholder="stock ticker" maxlength="5" /> 
+			when stock price falls below: <input type="text" id="sell-below-price" placeholder="price" />
+			<button type="submit">New Sell Below Algorithm</button>
+		</fieldset>
+	</form>
+
+	<hr>
+
 	<h2>Your Algorithms</h2>
+	<button id="run-algorithms-button">Run All Of Your Algorithms</button>
+	<button id="show-buy-below-algorithms" type="button">Buy Below</button>
+	<button id="show-sell-above-algorithms" type="button">Sell Above</button>
+	<button id="show-sell-below-algorithms" type="button">Sell Below</button>
 	<div id="algorithms"></div>
 	<script src="algotrade.js"></script>
 </body>
