@@ -83,7 +83,24 @@ updateBalanceButton.addEventListener("click", function() {
 });
 
 async function getPortfolio() {
-    const stocks = await fetch("/portfolio/stocks").then((res) => {
+
+    let dest = "/portfolio/stocks";
+    var filter = document.getElementById("portfolio-filter");
+    if (filter.options[filter.selectedIndex].id === "priced") {
+        dest = "/portfolio/stocks/sort/price-desc";
+    } else if (filter.options[filter.selectedIndex].id === "pricea") {
+        dest = "/portfolio/stocks/sort/price-asc";
+    } else if (filter.options[filter.selectedIndex].id === "namea") {
+        dest = "/portfolio/stocks/sort/alphabetical-asc";
+    } else if (filter.options[filter.selectedIndex].id === "named") {
+        dest = "/portfolio/stocks/sort/alphabetical-desc";
+    } else if (filter.options[filter.selectedIndex].id === "amountd") {
+        dest = "/portfolio/stocks/sort/amount-desc";
+    } else if (filter.options[filter.selectedIndex].id === "amounta") {
+        dest = "/portfolio/stocks/sort/amount-asc";
+    }
+
+    const stocks = await fetch(dest).then((res) => {
         console.log(res);
         return res.json();
     }).then((res) => {
@@ -98,26 +115,36 @@ async function getPortfolio() {
 async function displayPortfolio() {
     const stocks = await getPortfolio();
 
-    const divStocks = document.getElementById("stocks");
-    const hrFirst = document.createElement("hr");
-
-    divStocks.append(hrFirst);
+    const table = document.getElementById("stockTable");
+    while (table.children.length > 1) {
+        table.removeChild(table.lastChild);
+    }
 
     for (const stock of stocks) {
         const stockName = stock.stockname;
         const stockAmount = stock.stockamount;
+        const stockPrice = stock.totalprice;
 
         if (0 < stockAmount) {
-            const hr = document.createElement("hr");
-            const div = document.createElement("div");
-            const pTicker = document.createElement("p");
-            const pAmount = document.createElement("p");
+            const tr = document.createElement('tr');
 
-            pTicker.textContent = "Stock: " + stockName;
-            pAmount.textContent = "Amount Owned: " + stockAmount;
+            const tdStockName = document.createElement('td');
+            const tdStockAmount = document.createElement('td');
+            const tdStockPrice = document.createElement('td');
 
-            div.append(pTicker, pAmount, hr);
-            divStocks.append(div);
+            const textStockName = document.createTextNode(stockName);
+            const textStockAmount = document.createTextNode(stockAmount);
+            const textStockPrice = document.createTextNode(stockPrice);
+
+            tdStockName.appendChild(textStockName);
+            tdStockAmount.appendChild(textStockAmount);
+            tdStockPrice.appendChild(textStockPrice);
+
+            tr.appendChild(tdStockName);
+            tr.appendChild(tdStockAmount);
+            tr.appendChild(tdStockPrice);
+
+            table.appendChild(tr);
         }
     }
 }
