@@ -44,7 +44,32 @@ displayPortfolioName();
 displayBalance();
 
 async function getPortfolio() {
-    const stocks = await fetch("/portfolio/history").then((res) => {
+
+    let dest = "/portfolio/history";
+    var filter = document.getElementById("portfolio-filter");
+    if (filter.options[filter.selectedIndex].id === "priced") {
+        dest = "/portfolio/history/sort/price-desc";
+    } else if (filter.options[filter.selectedIndex].id === "pricea") {
+        dest = "/portfolio/history/sort/price-asc";
+    } else if (filter.options[filter.selectedIndex].id === "namea") {
+        dest = "/portfolio/history/sort/alphabetical-asc";
+    } else if (filter.options[filter.selectedIndex].id === "named") {
+        dest = "/portfolio/history/sort/alphabetical-desc";
+    } else if (filter.options[filter.selectedIndex].id === "amountd") {
+        dest = "/portfolio/history/sort/amount-desc";
+    } else if (filter.options[filter.selectedIndex].id === "amounta") {
+        dest = "/portfolio/history/sort/amount-asc";
+    } else if (filter.options[filter.selectedIndex].id === "buy") {
+        dest = "/portfolio/history-buy";
+    } else if (filter.options[filter.selectedIndex].id === "sell") {
+        dest = "/portfolio/history-sell";
+    } else if (filter.options[filter.selectedIndex].id === "new") {
+        dest = "/portfolio/history";
+    } else if (filter.options[filter.selectedIndex].id === "old") {
+        dest = "/portfolio/history/oldest";
+    }
+
+    const stocks = await fetch(dest).then((res) => {
         console.log(res);
         return res.json();
     }).then((res) => {
@@ -59,43 +84,10 @@ async function getPortfolio() {
 async function displayHistory() {
     const history = await getPortfolio();
 
-    const divHistory = document.getElementById("historyDiv");
-    const hrFirst = document.createElement("hr");
-
-    divHistory.append(hrFirst);
-
-    const table = document.createElement('table');
-    const trHeader = document.createElement('tr');
-
-    const thStockName = document.createElement('th');
-    const thStockAmount = document.createElement('th');
-    const thStockPrice = document.createElement('th');
-    const thTotalStock = document.createElement('th');
-    const thBalance = document.createElement('th');
-    const thDate = document.createElement('th');
-
-    const thTextStockName = document.createTextNode("Stock");
-    const thTextStockAmount = document.createTextNode("Amount");
-    const thTextStockPrice = document.createTextNode("Price");
-    const thTextTotalStock = document.createTextNode("Net Amount");
-    const thTextBalance = document.createTextNode("Net Balance");
-    const thTextDate = document.createTextNode("Date");
-
-    thStockName.appendChild(thTextStockName);
-    thStockAmount.appendChild(thTextStockAmount);
-    thStockPrice.appendChild(thTextStockPrice);
-    thTotalStock.appendChild(thTextTotalStock);
-    thBalance.appendChild(thTextBalance);
-    thDate.appendChild(thTextDate);
-
-    trHeader.appendChild(thStockName);
-    trHeader.appendChild(thStockAmount);
-    trHeader.appendChild(thStockPrice);
-    trHeader.appendChild(thTotalStock);
-    trHeader.appendChild(thBalance);
-    trHeader.appendChild(thDate);
-
-    table.appendChild(trHeader);
+    const table = document.getElementById("historyTable");
+    while (table.children.length > 1) {
+        table.removeChild(table.lastChild);
+    }
 
     for (const record of history) {
         const stockName = record.stockname;
@@ -137,7 +129,6 @@ async function displayHistory() {
 
         table.appendChild(tr);
     }
-    divHistory.appendChild(table);
 }
 
 displayHistory();

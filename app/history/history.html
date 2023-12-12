@@ -25,8 +25,36 @@
         </tr>
     </table>
 
-	<div id="historyDiv">
+	<div>
+		<form>  
+			<b> Sort By: </b>  
+			<select id = "portfolio-filter" onchange = "displayHistory()">  
+			<option> --- Choose Filter --- </option>
+			<option id="priced"> Price HIGH to LOW </option>
+			<option id="pricea"> Price LOW TO HIGH </option>
+			<option id="namea"> Name A to Z </option>
+			<option id="named"> Name Z to A </option>
+			<option id="amountd"> Amount HIGH to LOW </option>
+			<option id="amounta"> Amount LOW to HIGH </option>
+			<option id="buy"> Bought </option>
+			<option id="sell"> Sold </option>
+			<option id="new"> Most Recent </option>
+			<option id="old"> Oldest </option>
+			</select>
+		</form>  
+	</div>
 
+	<div id="historyDiv">
+		<table id = historyTable>
+			<tr>
+				<th>Stock</th>
+				<th>Amount</th>
+				<th>Price</th>
+				<th>Net Amount</th>
+				<th>Net Balance</th>
+				<th>Date</th>
+			</tr>
+		</table>
 	</div>
 
 	<script src="history.js"></script>
