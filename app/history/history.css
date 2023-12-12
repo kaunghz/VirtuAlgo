@@ -12,3 +12,7 @@ td, th {
     text-align: left;
     padding: 8px;
 }
+
+form {
+    text-align: right;
+}

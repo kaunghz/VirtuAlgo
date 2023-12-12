@@ -38,8 +38,29 @@
 		<button id="updatePortfolioBalanceButton">Update Portfolio Balance</button>
 	</div>
 
-	<div id="stocks">
+	<div>
+		<form>  
+			<b> Sort By: </b>  
+			<select id = "portfolio-filter" onchange = "displayPortfolio()" >  
+			<option> --- Choose Filter --- </option>
+			<option id="priced"> Price HIGH to LOW </option>
+			<option id="pricea"> Price LOW TO HIGH </option>
+			<option id="namea"> Name A to Z </option>
+			<option id="named"> Name Z to A </option>
+			<option id="amountd"> Amount HIGH to LOW </option>
+			<option id="amounta"> Amount LOW to HIGH </option>
+			</select>
+		</form>  
+	</div>
 
+	<div id="stocks">
+		<table id="stockTable">
+			<tr>
+				<th>Stock</th>
+				<th>Amount</th>
+				<th>Price</th>
+			</tr>
+		</table>
 	</div>
 
 	<script src="portfolio.js"></script>
