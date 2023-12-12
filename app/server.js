@@ -244,6 +244,90 @@ app.get("/portfolio/stocks", (req, res) => {
   });
 });
 
+app.get("/portfolio/stocks/sort/price-desc", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) \
+    ORDER BY totalprice DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/stocks/sort/price-asc", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) \
+    ORDER BY totalprice ASC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/stocks/sort/alphabetical-desc", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) \
+    ORDER BY stockname DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/stocks/sort/alphabetical-asc", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) \
+    ORDER BY stockname ASC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/stocks/sort/amount-desc", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) \
+    ORDER BY stockamount DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/stocks/sort/amount-asc", (req, res) => {
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_stock WHERE portfolio_stock.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) \
+    ORDER BY stockamount ASC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
 app.get("/portfolio/history", (req, res) => {
   if(!req.session || !req.session.authenticated) {
     console.log("Current User is not authenticated");
@@ -261,6 +345,172 @@ app.get("/portfolio/history", (req, res) => {
     console.log(err);
   });
 });
+
+app.get("/portfolio/history/oldest", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY portfolio_history.transactiondate ASC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history/sort/price-desc", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY stockprice DESC, portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history/sort/price-asc", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY stockprice ASC, portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history/sort/alphabetical-desc", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY stockname DESC, portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history/sort/alphabetical-asc", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY stockname ASC, portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history/sort/amount-desc", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY stockamount DESC, portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history/sort/amount-asc", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) ORDER BY stockname ASC, portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/portfolio/history-buy", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) AND stockamount > 0 \
+    ORDER BY portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+
+app.get("/portfolio/history-sell", (req, res) => {
+  if(!req.session || !req.session.authenticated) {
+    console.log("Current User is not authenticated");
+    return res.status(401).send("User is not authenticated");
+  }
+
+  const userID = req.session.user_id;
+
+  pool.query(
+    "SELECT * FROM portfolio_history WHERE portfolio_history.portfolioId = (SELECT portfolioId FROM portfolio WHERE userId = $1) AND stockamount < 0 \
+    ORDER BY portfolio_history.transactiondate DESC",
+    [userID]
+  ).then((result) => {
+    res.status(200).json(result.rows);
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
 
 app.post("/add-portfolio", (req, res) => {
   let portfolioName = req.body.portfolioName;
