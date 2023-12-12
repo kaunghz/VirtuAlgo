@@ -70,8 +70,14 @@ async function getPortfolio() {
     }
 
     const stocks = await fetch(dest).then((res) => {
-        console.log(res);
-        return res.json();
+        if (response.status === 401) {
+            alert("You must sign in again. Redirecting to login page...");
+            setTimeout(function () {
+                window.location.href = './';
+            }, 500);
+            throw new Error(`Unauthorized: ${response.status} - ${response.statusText}`);
+        }
+        return response.json();
     }).then((res) => {
         console.log(res);
         return res;
