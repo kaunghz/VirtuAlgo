@@ -16,5 +16,8 @@
     "setup": "psql -U postgres -f setup.sql"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.4.11"
+  }
 }
