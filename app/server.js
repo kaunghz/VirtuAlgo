@@ -5,14 +5,11 @@ const bcrypt = require("bcrypt");
 const session = require("express-session");
 let env = require("../env.json");
 
-let hostname = "0.0.0.0";
+let hostname = "localhost";
 let port = 3000;
 
 let app = express();
-// let pool = new Pool(env);
-let pool = new Pool({ connectionString: process.env.DATABASE_URL });
-console.log(process.env.DATABASE_URL, " database  --------------------")
-
+let pool = new Pool(env);
 pool.connect().then(function () {
   console.log(`Connected to database ${env.database}`);
 });
