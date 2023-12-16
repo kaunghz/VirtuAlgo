@@ -1,13 +1,11 @@
 # VirtuAlgo
-
-VirtuAlgo is a stock portfolio management system that incorporates options to perform algorithmic trading. (We will add more to this later...).
+VirtuAlgo is a stock portfolio management system that incorporates options to perform algorithmic trading.
+With VirtuAlgo, you can trade with real-time market data in a virtual setting, and set up algorithmic trading on top of it if you wish to.
 
 # Dependencies
-
-Must have PostgresSQL Version 16.0 or higher.
+To run this app, you must have PostgresSQL Version 16.0 or higher.
 
 # Installation
-
 First, clone the branch.
 
 You should be in the VirtuAlgo/ directory.
@@ -33,9 +31,7 @@ npm run start
 ```
 
 # Developers:
-- Leo Li,
 - Kaung Zan,
+- Leo Li,
 - Vivien Ho,
 - Alex Ho
-
-> Developers Note - Please create your own branch to add new features Don't push directly to master branch.
